@@ -105,7 +105,7 @@ html, body {
   border-radius: 10px;
   padding: 12px 20px;
   font-size: clamp(14px, 2.5vw, 18px);
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
   flex: 1 1 100px; /* tombol menyesuaikan lebar layar */
@@ -114,6 +114,36 @@ html, body {
 }
 
 .bab-btn:hover {
+  background-color: #e0e0e0;
+  transform: translateY(-3px);
+  text-decoration-line: none;
+}
+
+.button-game {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+  max-width: 600px;
+  text-decoration: none;
+}
+
+.game-slot {
+  border: 2px solid #333;
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 12px 20px;
+  font-size: clamp(14px, 2.5vw, 18px);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex: 1 1 100px; /* tombol menyesuaikan lebar layar */
+  max-width: 120px;
+  text-decoration: none;
+}
+
+.game-slot:hover {
   background-color: #e0e0e0;
   transform: translateY(-3px);
   text-decoration-line: none;
