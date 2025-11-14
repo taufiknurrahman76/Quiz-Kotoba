@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Kotoba Bab 1 — Quiz Game</title>
+  <style>
+    :root{--bg:#0f1724;--card:#0b1220;--accent:#10b981;--muted:#94a3b8;--glass:rgba(255,255,255,0.04)}
+    *{box-sizing:border-box;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,'Helvetica Neue',Arial}
+    html,body{height:100%;margin:0;background:linear-gradient(180deg,#071022 0%,#07142a 60%);color:#e6eef6}
+    .app{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+    .card{width:920px;max-width:100%;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));border-radius:14px;padding:20px;box-shadow:0 8px 30px rgba(2,6,23,0.7);border:1px solid rgba(255,255,255,0.03)}
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+    header h1{font-size:20px;margin:0}
+    header p{margin:0;color:var(--muted);font-size:13px}
+    .cols{display:grid;grid-template-columns:1fr 360px;gap:18px}
+    @media(max-width:880px){.cols{grid-template-columns:1fr} .sidebar{order:2}}
+    .main{background:var(--card);padding:18px;border-radius:12px;border:1px solid var(--glass)}
+    .sidebar{background:rgba(255,255,255,0.02);padding:18px;border-radius:12px;border:1px solid var(--glass)}
+    .center{display:flex;flex-direction:column;align-items:center;justify-content:center;height:280px}
+    .btn{display:inline-block;padding:10px 14px;border-radius:10px;background:linear-gradient(180deg,var(--accent),#059669);color:#032;cursor:pointer;font-weight:600;border:none}
+    .muted{color:var(--muted);font-size:13px}
+    .question{font-size:20px;margin-bottom:12px}
+    .options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .option{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:10px;border-radius:10px;cursor:pointer;text-align:left;color:#ffffff;}
+    .option.correct{outline:3px solid rgba(16,185,129,0.12);border-color:rgba(16,185,129,0.3);}
+    .option.wrong{outline:3px solid rgba(239,68,68,0.12);border-color:rgba(239,68,68,0.25);}
+    .meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+    .progress{height:8px;background:rgba(255,255,255,0.04);border-radius:6px;overflow:hidden}
+    .progress > i{display:block;height:100%;background:linear-gradient(90deg,#06b6d4,#10b981);width:0%}
+    .small{font-size:13px;color:var(--muted)}
+    .leader{margin-top:12px}
+    footer{margin-top:12px;font-size:12px;color:var(--muted);text-align:center}
+    .controls{display:flex;gap:8px;margin-top:12px}
+    .settings label{display:flex;gap:8px;align-items:center;margin-bottom:8px;font-size:14px}
+    .scorebox{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));padding:10px;border-radius:8px;text-align:center}
+    .hidden{display:none}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="card" role="application">
+      <header>
+        <div>
+          <h1>Kotoba — Minna no Nihongo (Bab 1)</h1>
+          <p class="muted">Quiz interaktif — pelajari kosakata dan arti.</p>
+        </div>
+        <div class="small muted">Rudystan • Versi Game</div>
+      </header>
+
+      <div class="cols">
+        <section class="main">
+          <div id="startScreen">
+            <div style="display:flex;gap:10px;justify-content:center;margin-bottom:12px">
+              <button class="btn" id="startBtn">MULAI QUIZ</button>
+              <button class="btn" id="flashBtn" style="background:#3b82f6;color:white">FLASHCARD</button>
+            </div>
+            <div class="center">
+              <h2 style="margin:6px 0">Mulai Quiz</h2>
+              <p class="muted">40 soal kosakata Bab 1. Pilih jumlah soal dan timer di samping.</p>
+            </div>
+          </div>
+
+          <div id="flashcardScreen" class="hidden">
+            <div class="center">
+              <div id="flashCard" style="background:rgba(255,255,255,0.05);padding:20px;border-radius:12px;text-align:center;cursor:pointer;width:100%;max-width:400px;">
+                <div id="flashFront" style="font-size:24px;font-weight:600">Klik untuk mulai</div>
+                <div id="flashBack" style="font-size:20px;margin-top:10px;display:none;color:#10b981"></div>
+              </div>
+              <div style="margin-top:14px;display:flex;gap:10px">
+                <button class="btn" id="flashNext">BERIKUTNYA</button>
+                <button class="btn" id="flashExit" style="background:transparent;color:var(--accent);border:1px solid rgba(255,255,255,0.04)">KELUAR</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="gameScreen" class="hidden">
+            <div class="meta">
+              <div class="small">Soal <span id="qIdx">1</span> / <span id="qTotal">40</span></div>
+              <div class="small">Skor: <strong id="score">0</strong></div>
+            </div>
+
+            <div class="progress" aria-hidden><i id="progressBar"></i></div>
+
+            <div style="height:12px"></div>
+
+            <div class="question" id="questionText">Apa arti ...?</div>
+
+            <div class="options" id="optionsWrap"></div>
+
+            <div style="height:12px"></div>
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div class="small muted" id="feedback"></div>
+              <div class="small muted">Waktu tersisa: <span id="timer">--</span></div>
+            </div>
+
+            <div class="controls">
+              <button class="btn" id="nextBtn" style="display:none">LANJUT</button>
+              <button class="btn" id="endBtn" style="background:transparent;color:var(--accent);border:1px solid rgba(255,255,255,0.04)">SELESAI</button>
+            </div>
+          </div>
+
+          <div id="resultScreen" class="hidden">
+            <div class="center">
+              <h2 id="resultTitle">Hasil</h2>
+              <div class="scorebox" style="margin-top:8px">
+                <div class="small muted">Skor akhir</div>
+                <div style="font-size:28px;font-weight:700" id="finalScore">0</div>
+                <div class="small muted" id="summary">Benar: 0 | Salah: 0</div>
+              </div>
+
+              <div style="height:12px"></div>
+              <div style="display:flex;gap:8px">
+                <button class="btn" id="retryBtn">ULANGI</button>
+                <button class="btn" id="toStartBtn" style="background:transparent;color:var(--accent);border:1px solid rgba(255,255,255,0.04)">MENU</button>
+              </div>
+
+              <div class="leader">
+                <h3 style="margin:12px 0 6px">Leaderboard Lokal</h3>
+                <ol id="leaderList" class="muted" style="text-align:left;padding-left:18px;margin:0"></ol>
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+        <aside class="sidebar">
+          <div class="settings">
+            <label>Jumlah soal:
+              <select id="numQuestions">
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="30">30</option>
+                <option value="40" selected>40</option>
+              </select>
+            </label>
+
+            <label>Timer per soal (detik):
+              <input id="timerSec" type="number" min="0" max="120" value="20" style="width:80px;padding:6px;border-radius:6px;border:1px solid rgba(255,255,255,0.04)">
+            </label>
+
+            <label><input id="enableTimer" type="checkbox" checked> Aktifkan timer</label>
+            <label><input id="shuffleQ" type="checkbox" checked> Acak soal & opsi</label>
+            <label><input id="soundOn" type="checkbox" checked> Suara umpan balik</label>
+
+            <div style="height:12px"></div>
+
+            <div class="muted">Skor: +10 untuk benar.</div>
+
+            <div style="height:12px"></div>
+            <div class="muted">Tips: Gunakan mode 10 soal untuk latihan cepat.</div>
+          </div>
+        </aside>
+      </div>
+
+      <footer>
+        <div class="small muted">File ini dibuat otomatis — salin HTML dan jalankan di browser.</div>
+      </footer>
+    </div>
+  </div>
+
+<script>
+// ===== DATA: soal JSON (Kotoba Bab 1) =====
+const QUESTIONS = [
+  {question: "Apa arti dari ‘わたし’?", options:["Kamu","Saya","Dia","Orang itu"], answer: "Saya"},
+  {question: "Apa arti dari ‘あなた’?", options:["Saya","Kamu","Mereka","Orang itu"], answer: "Kamu"},
+  {question: "‘あのひと’ berarti…", options:["Orang itu (sopan)","Orang itu (biasa)","Dia","Orang Jepang"], answer: "Orang itu (biasa)"},
+  {question: "‘あのかた’ adalah bentuk sopan dari…", options:["あなた","あのひと","せんせい","だれ"], answer: "あのひと"},
+  {question: "Akhiran ‘～さん’ digunakan untuk…", options:["Anak kecil","Orang dengan sopan","Guru","Dokter"], answer: "Orang dengan sopan"},
+  {question: "‘～ちゃん’ digunakan untuk…", options:["Dosen","Anak laki/perempuan","Orang asing","Pegawai"], answer: "Anak laki/perempuan"},
+  {question: "Akhiran ‘～じん’ berarti…", options:["Umur","Orang dari negara tertentu","Pegawai","Profesi"], answer: "Orang dari negara tertentu"},
+  {question: "‘せんせい’ berarti…", options:["Guru/dosen","Peneliti","Mahasiswa","Pegawai bank"], answer: "Guru/dosen"},
+  {question: "‘きょうし’ adalah…", options:["Guru untuk menyebut diri sendiri","Guru umum","Dosen asing","Pelajar"], answer: "Guru untuk menyebut diri sendiri"},
+  {question: "‘がくせい’ berarti…", options:["Dokter","Mahasiswa/siswa","Peneliti","Orang Korea"], answer: "Mahasiswa/siswa"},
+  {question: "‘かいしゃいん’ berarti…", options:["Pegawai bank","Pegawai perusahaan","Dokter","Peneliti"], answer: "Pegawai perusahaan"},
+  {question: "‘ぎんこういん’ berarti…", options:["Dokter","Pegawai bank","Peneliti","Guru"], answer: "Pegawai bank"},
+  {question: "‘いしゃ’ artinya…", options:["Pegawai","Dokter","Peneliti","Mahasiswa"], answer: "Dokter"},
+  {question: "‘けんきゅうしゃ’ berarti…", options:["Mahasiswa","Peneliti","Guru","Dosen"], answer: "Peneliti"},
+  {question: "‘だいがく’ berarti…", options:["Bank","Universitas","Rumah sakit","Kantor"], answer: "Universitas"},
+  {question: "‘びょういん’ berarti…", options:["Rumah sakit","Bank","Universitas","Apotek"], answer: "Rumah sakit"},
+  {question: "‘だれ’ berarti…", options:["Di mana","Siapa (biasa)","Kapan","Apa"], answer: "Siapa (biasa)"},
+  {question: "Bentuk sopan dari ‘だれ’ adalah…", options:["おなまえ","おいくつ","どなた","なんさい"], answer: "どなた"},
+  {question: "Akhiran ‘～さい’ digunakan untuk…", options:["Umur","Negara","Orang","Profesi"], answer: "Umur"},
+  {question: "‘なんさい’ berarti…", options:["Umur berapa? (biasa)","Siapa kamu?","Kamu dari mana?","Umur berapa? (sopan)"], answer: "Umur berapa? (biasa)"},
+  {question: "‘おいくつ’ berarti…", options:["Apa pekerjaan Anda?","Berapa umur? (sopan)","Negara mana?","Nama siapa?"], answer: "Berapa umur? (sopan)"},
+  {question: "‘はい’ berarti…", options:["Tidak","Iya","Mungkin","Apa"], answer: "Iya"},
+  {question: "‘いいえ’ berarti…", options:["Tidak","Iya","Tolong","Maaf"], answer: "Tidak"},
+  {question: "‘はじめまして’ digunakan ketika…", options:["Berkenalan pertama kali","Berpisah","Minta maaf","Terima kasih"], answer: "Berkenalan pertama kali"},
+  {question: "‘～からきました’ berarti…", options:["Saya tinggal di…","Saya datang dari…","Saya bekerja di…","Saya pergi ke…"], answer: "Saya datang dari…"},
+  {question: "‘どうぞよろしくおねがいします’ berarti…", options:["Terima kasih banyak","Senang bertemu Anda","Terimalah perkenalan saya","Tolong bantu saya"], answer: "Terimalah perkenalan saya"},
+  {question: "‘しつれいですが’ digunakan untuk…", options:["Permisi (sopan)","Menolak","Menutup percakapan","Mengucapkan terima kasih"], answer: "Permisi (sopan)"},
+  {question: "‘おなまえは’ berarti…", options:["Apa pekerjaan Anda?","Nama Anda siapa?","Umur berapa?","Tinggal di mana?"], answer: "Nama Anda siapa?"},
+  {question: "‘アメリカ’ berarti…", options:["Inggris","Amerika","Jerman","Korea"], answer: "Amerika"},
+  {question: "‘イギリス’ berarti…", options:["Perancis","Inggris","Italia","Belanda"], answer: "Inggris"},
+  {question: "‘インド’ berarti…", options:["India","Indonesia","Jepang","Korea"], answer: "India"},
+  {question: "‘インドネシア’ berarti…", options:["China","Indonesia","India","Jepang"], answer: "Indonesia"},
+  {question: "‘かんこく（韓国）’ berarti…", options:["Korea","China","Jepang","Amerika"], answer: "Korea"},
+  {question: "‘ちゅうごく（中国）’ berarti…", options:["China","Korea","Jepang","Thailand"], answer: "China"},
+  {question: "‘ドイツ’ berarti…", options:["Jerman","Rusia","Belanda","Spanyol"], answer: "Jerman"},
+  {question: "‘にほん（日本）’ berarti…", options:["China","Korea","Jepang","Mesir"], answer: "Jepang"},
+  {question: "‘フランス’ berarti…", options:["Perancis","Belanda","Italia","Kanada"], answer: "Perancis"},
+  {question: "Mana yang berarti 'pegawai perusahaan'?", options:["がくせい","かいしゃいん","いしゃ","びょういん"], answer: "かいしゃいん"},
+  {question: "Mana yang berarti 'peneliti'?", options:["けんきゅうしゃ","せんせい","しゃいん","だれ"], answer: "けんきゅうしゃ"},
+  {question: "Kata yang berarti 'permisi untuk menanyakan sesuatu' adalah…", options:["はじめまして","しつれいですが","おなまえは","なんさい"], answer: "しつれいですが"}
+];
+
+// ====== APP LOGIC SEDERHANA ======
+let config = { total:40, timerOn:true, timerSec:20, shuffle:true, sound:true };
+let state = { pool:[], cur:0, score:0, right:0, wrong:0, remainingTime:0, timerId:null };
+
+const startBtn = document.getElementById('startBtn');
+const flashBtn = document.getElementById('flashBtn');
+const startScreen = document.getElementById('startScreen');
+const gameScreen = document.getElementById('gameScreen');
+const resultScreen = document.getElementById('resultScreen');
+const flashcardScreen = document.getElementById('flashcardScreen');
+
+const qIdx = document.getElementById('qIdx');
+const qTotal = document.getElementById('qTotal');
+const questionText = document.getElementById('questionText');
+const optionsWrap = document.getElementById('optionsWrap');
+const scoreEl = document.getElementById('score');
+const progressBar = document.getElementById('progressBar');
+const timerEl = document.getElementById('timer');
+const feedback = document.getElementById('feedback');
+const nextBtn = document.getElementById('nextBtn');
+const endBtn = document.getElementById('endBtn');
+const finalScore = document.getElementById('finalScore');
+const summary = document.getElementById('summary');
+const leaderList = document.getElementById('leaderList');
+
+const numQuestions = document.getElementById('numQuestions');
+const timerSec = document.getElementById('timerSec');
+const enableTimer = document.getElementById('enableTimer');
+const shuffleQ = document.getElementById('shuffleQ');
+const soundOn = document.getElementById('soundOn');
+
+const retryBtn = document.getElementById('retryBtn');
+const toStartBtn = document.getElementById('toStartBtn');
+
+function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+
+// START GAME
+function startGame(){
+  config.total = parseInt(numQuestions.value);
+  config.timerOn = enableTimer.checked;
+  config.timerSec = parseInt(timerSec.value);
+  config.shuffle = shuffleQ.checked;
+  config.sound = soundOn.checked;
+
+  state.cur=0; state.score=0; state.right=0; state.wrong=0;
+
+  state.pool = QUESTIONS.slice();
+  if(config.shuffle) shuffle(state.pool);
+  state.pool = state.pool.slice(0,config.total);
+
+  qTotal.textContent = state.pool.length;
+  scoreEl.textContent = 0;
+
+  startScreen.classList.add("hidden");
+  resultScreen.classList.add("hidden");
+  gameScreen.classList.remove("hidden");
+
+  renderQ();
+}
+
+// RENDER QUESTION
+function renderQ(){
+  clearInterval(state.timerId);
+
+  const q = state.pool[state.cur];
+  if(!q){ endGame(); return; }
+
+  qIdx.textContent = state.cur+1;
+  questionText.textContent = q.question;
+  feedback.textContent="";
+
+  let opts = q.options.slice();
+  if(config.shuffle) shuffle(opts);
+
+  optionsWrap.innerHTML="";
+  opts.forEach(o=>{
+    let b=document.createElement("button");
+    b.className="option";
+    b.textContent=o;
+    b.onclick=()=>selectOpt(b,o,q.answer);
+    optionsWrap.appendChild(b);
+  });
+
+  progressBar.style.width = (state.cur/state.pool.length*100)+"%";
+  nextBtn.style.display="none";
+
+  if(config.timerOn && config.timerSec>0){
+    state.remainingTime=config.timerSec;
+    timerEl.textContent=state.remainingTime+"s";
+    state.timerId=setInterval(()=>{
+      state.remainingTime--;
+      timerEl.textContent=state.remainingTime+"s";
+      if(state.remainingTime<=0){
+        clearInterval(state.timerId);
+        timeUp();
+      }
+    },1000);
+  } else timerEl.textContent="-";
+}
+
+function selectOpt(btn,selected,correct){
+  Array.from(optionsWrap.children).forEach(b=>b.disabled=true);
+  clearInterval(state.timerId);
+
+  if(selected===correct){
+    btn.classList.add("correct");
+    state.score+=10; state.right++;
+    feedback.textContent="Benar! +10";
+  } else {
+    btn.classList.add("wrong");
+    Array.from(optionsWrap.children).forEach(b=>{ if(b.textContent===correct) b.classList.add("correct"); });
+    state.wrong++;
+    feedback.textContent="Salah! Jawaban: "+correct;
+  }
+
+  scoreEl.textContent=state.score;
+  nextBtn.style.display="inline-block";
+}
+
+function timeUp(){
+  Array.from(optionsWrap.children).forEach(b=>{
+    b.disabled=true;
+    if(b.textContent===state.pool[state.cur].answer) b.classList.add("correct");
+  });
+  feedback.textContent="Waktu habis! Jawaban: "+state.pool[state.cur].answer;
+  state.wrong++;
+  nextBtn.style.display="inline-block";
+}
+
+// NEXT
+nextBtn.onclick=()=>{
+  state.cur++;
+  if(state.cur>=state.pool.length) endGame();
+  else renderQ();
+};
+
+endBtn.onclick=()=>{
+  if(confirm("Akhiri kuis?")) endGame();
+};
+
+// END GAME
+function endGame(){
+  clearInterval(state.timerId);
+  gameScreen.classList.add("hidden");
+  resultScreen.classList.remove("hidden");
+
+  finalScore.textContent=state.score;
+  summary.textContent="Benar: "+state.right+" | Salah: "+state.wrong;
+
+  saveBoard(state.score);
+  loadBoard();
+}
+
+// LEADERBOARD
+function saveBoard(s){
+  let x=JSON.parse(localStorage.getItem("kotoba_b1")||"[]");
+  x.push({score:s,time:new Date().toLocaleString()});
+  x.sort((a,b)=>b.score-a.score);
+  x=x.slice(0,10);
+  localStorage.setItem("kotoba_b1",JSON.stringify(x));
+}
+function loadBoard(){
+  let x=JSON.parse(localStorage.getItem("kotoba_b1")||"[]");
+  leaderList.innerHTML="";
+  if(x.length===0){ leaderList.innerHTML="<li>Belum ada skor</li>"; return; }
+  x.forEach(r=>{
+    let li=document.createElement("li");
+    li.textContent=r.score+" pts — "+r.time;
+    leaderList.appendChild(li);
+  });
+}
+loadBoard();
+
+retryBtn.onclick=()=>startGame();
+toStartBtn.onclick=()=>{
+  resultScreen.classList.add("hidden");
+  gameScreen.classList.add("hidden");
+  startScreen.classList.remove("hidden");
+};
+
+// FLASHCARD
+const flashCard = document.getElementById('flashCard');
+const flashFront = document.getElementById('flashFront');
+const flashBack = document.getElementById('flashBack');
+const flashNext = document.getElementById('flashNext');
+const flashExit = document.getElementById('flashExit');
+let flashPool=[], flashIndex=0;
+
+function startFlash(){
+  flashPool = QUESTIONS.slice();
+  shuffle(flashPool);
+  flashIndex=0;
+
+  startScreen.classList.add("hidden");
+  gameScreen.classList.add("hidden");
+  resultScreen.classList.add("hidden");
+  flashcardScreen.classList.remove("hidden");
+
+  loadFlash();
+}
+
+function loadFlash(){
+  const q=flashPool[flashIndex % flashPool.length];
+  flashFront.textContent=q.question;
+  flashBack.textContent=q.answer;
+  flashBack.style.display="none";
+}
+
+flashCard.onclick=()=>{
+  flashBack.style.display = flashBack.style.display==="none" ? "block":"none";
+};
+flashNext.onclick=()=>{
+  flashIndex++;
+  loadFlash();
+};
+flashExit.onclick=()=>{
+  flashcardScreen.classList.add("hidden");
+  startScreen.classList.remove("hidden");
+};
+
+flashBtn.onclick=()=>startFlash();
+startBtn.onclick=()=>startGame();
+</script>
+
+</body>
+</html>
