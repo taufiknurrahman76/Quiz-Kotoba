@@ -1,432 +1,3133 @@
 <!doctype html>
-<html lang="id">
+<html lang="id" class="h-full">
+
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Kotoba Bab 1 — Quiz Game</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz Kotoba</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    :root{--bg:#0f1724;--card:#0b1220;--accent:#10b981;--muted:#94a3b8;--glass:rgba(255,255,255,0.04)}
-    *{box-sizing:border-box;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,'Helvetica Neue',Arial}
-    html,body{height:100%;margin:0;background:linear-gradient(180deg,#071022 0%,#07142a 60%);color:#e6eef6}
-    .app{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
-    .card{width:920px;max-width:100%;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));border-radius:14px;padding:20px;box-shadow:0 8px 30px rgba(2,6,23,0.7);border:1px solid rgba(255,255,255,0.03)}
-    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
-    header h1{font-size:20px;margin:0}
-    header p{margin:0;color:var(--muted);font-size:13px}
-    .cols{display:grid;grid-template-columns:1fr 360px;gap:18px}
-    @media(max-width:880px){.cols{grid-template-columns:1fr} .sidebar{order:2}}
-    .main{background:var(--card);padding:18px;border-radius:12px;border:1px solid var(--glass)}
-    .sidebar{background:rgba(255,255,255,0.02);padding:18px;border-radius:12px;border:1px solid var(--glass)}
-    .center{display:flex;flex-direction:column;align-items:center;justify-content:center;height:280px}
-    .btn{display:inline-block;padding:10px 14px;border-radius:10px;background:linear-gradient(180deg,var(--accent),#059669);color:#032;cursor:pointer;font-weight:600;border:none}
-    .muted{color:var(--muted);font-size:13px}
-    .question{font-size:20px;margin-bottom:12px}
-    .options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .option{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:10px;border-radius:10px;cursor:pointer;text-align:left;color:#ffffff;}
-    .option.correct{outline:3px solid rgba(16,185,129,0.12);border-color:rgba(16,185,129,0.3);}
-    .option.wrong{outline:3px solid rgba(239,68,68,0.12);border-color:rgba(239,68,68,0.25);}
-    .meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-    .progress{height:8px;background:rgba(255,255,255,0.04);border-radius:6px;overflow:hidden}
-    .progress > i{display:block;height:100%;background:linear-gradient(90deg,#06b6d4,#10b981);width:0%}
-    .small{font-size:13px;color:var(--muted)}
-    .leader{margin-top:12px}
-    footer{margin-top:12px;font-size:12px;color:var(--muted);text-align:center}
-    .controls{display:flex;gap:8px;margin-top:12px}
-    .settings label{display:flex;gap:8px;align-items:center;margin-bottom:8px;font-size:14px}
-    .scorebox{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));padding:10px;border-radius:8px;text-align:center}
-    .hidden{display:none}
+    body {
+      box-sizing: border-box;
+    }
+
+    .gradient-bg {
+      background: linear-gradient(135deg, #87CEEB 0%, #87CEEB 50%, #87CEEB 100%);
+    }
+
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.4);
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.6);
+    }
+
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-top: 4px solid white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.5s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .slide-in {
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(-20px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .pulse-animation {
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.05);
+      }
+    }
+
+    .option-button {
+      transition: background-color 0.2s ease;
+    }
+
+    .option-button:hover {
+      background-color: rgba(255, 255, 255, 0.35);
+    }
+
+    .correct-answer {
+      background: linear-gradient(135deg, #10B981, #059669);
+      animation: correctPulse 0.6s ease-in-out;
+    }
+
+    .wrong-answer {
+      background: linear-gradient(135deg, #EF4444, #DC2626);
+      animation: wrongShake 0.6s ease-in-out;
+    }
+
+    @keyframes correctPulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.02);
+      }
+    }
+
+    @keyframes wrongShake {
+
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      25% {
+        transform: translateX(-5px);
+      }
+
+      75% {
+        transform: translateX(5px);
+      }
+    }
   </style>
+  <style>
+    @view-transition {
+      navigation: auto;
+    }
+  </style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
 </head>
-<body>
-  <div class="app">
-    <div class="card" role="application">
-      <header>
-        <div>
-          <h1>Kotoba — Minna no Nihongo (Bab 1)</h1>
-          <p class="muted">Quiz interaktif — pelajari kosakata dan arti.</p>
-        </div>
-        <div class="small muted">Rudystan • Versi Game</div>
-      </header>
 
-      <div class="cols">
-        <section class="main">
-          <div id="startScreen">
-            <div style="display:flex;gap:10px;justify-content:center;margin-bottom:12px">
-              <button class="btn" id="startBtn">MULAI QUIZ</button>
-              <button class="btn" id="flashBtn" style="background:#3b82f6;color:white">FLASHCARD</button>
-            </div>
-            <div class="center">
-              <h2 style="margin:6px 0">Mulai Quiz</h2>
-              <p class="muted">40 soal kosakata Bab 1. Pilih jumlah soal dan timer di samping.</p>
-            </div>
-          </div>
-
-          <div id="flashcardScreen" class="hidden">
-            <div class="center">
-              <div id="flashCard" style="background:rgba(255,255,255,0.05);padding:20px;border-radius:12px;text-align:center;cursor:pointer;width:100%;max-width:400px;">
-                <div id="flashFront" style="font-size:24px;font-weight:600">Klik untuk mulai</div>
-                <div id="flashBack" style="font-size:20px;margin-top:10px;display:none;color:#10b981"></div>
-              </div>
-              <div style="margin-top:14px;display:flex;gap:10px">
-                <button class="btn" id="flashNext">BERIKUTNYA</button>
-                <button class="btn" id="flashExit" style="background:transparent;color:var(--accent);border:1px solid rgba(255,255,255,0.04)">KELUAR</button>
-              </div>
-            </div>
-          </div>
-
-          <div id="gameScreen" class="hidden">
-            <div class="meta">
-              <div class="small">Soal <span id="qIdx">1</span> / <span id="qTotal">40</span></div>
-              <div class="small">Skor: <strong id="score">0</strong></div>
-            </div>
-
-            <div class="progress" aria-hidden><i id="progressBar"></i></div>
-
-            <div style="height:12px"></div>
-
-            <div class="question" id="questionText">Apa arti ...?</div>
-
-            <div class="options" id="optionsWrap"></div>
-
-            <div style="height:12px"></div>
-            <div style="display:flex;justify-content:space-between;align-items:center">
-              <div class="small muted" id="feedback"></div>
-              <div class="small muted">Waktu tersisa: <span id="timer">--</span></div>
-            </div>
-
-            <div class="controls">
-              <button class="btn" id="nextBtn" style="display:none">LANJUT</button>
-              <button class="btn" id="endBtn" style="background:transparent;color:var(--accent);border:1px solid rgba(255,255,255,0.04)">SELESAI</button>
-            </div>
-          </div>
-
-          <div id="resultScreen" class="hidden">
-            <div class="center">
-              <h2 id="resultTitle">Hasil</h2>
-              <div class="scorebox" style="margin-top:8px">
-                <div class="small muted">Skor akhir</div>
-                <div style="font-size:28px;font-weight:700" id="finalScore">0</div>
-                <div class="small muted" id="summary">Benar: 0 | Salah: 0</div>
-              </div>
-
-              <div style="height:12px"></div>
-              <div style="display:flex;gap:8px">
-                <button class="btn" id="retryBtn">ULANGI</button>
-                <button class="btn" id="toStartBtn" style="background:transparent;color:var(--accent);border:1px solid rgba(255,255,255,0.04)">MENU</button>
-              </div>
-
-              <div class="leader">
-                <h3 style="margin:12px 0 6px">Leaderboard Lokal</h3>
-                <ol id="leaderList" class="muted" style="text-align:left;padding-left:18px;margin:0"></ol>
-              </div>
-            </div>
-          </div>
-
-        </section>
-
-        <aside class="sidebar">
-          <div class="settings">
-            <label>Jumlah soal:
-              <select id="numQuestions">
-                <option value="10">10</option>
-                <option value="20">20</option>
-                <option value="30">30</option>
-                <option value="40" selected>40</option>
-              </select>
-            </label>
-
-            <label>Timer per soal (detik):
-              <input id="timerSec" type="number" min="0" max="120" value="20" style="width:80px;padding:6px;border-radius:6px;border:1px solid rgba(255,255,255,0.04)">
-            </label>
-
-            <label><input id="enableTimer" type="checkbox" checked> Aktifkan timer</label>
-            <label><input id="shuffleQ" type="checkbox" checked> Acak soal & opsi</label>
-            <label><input id="soundOn" type="checkbox" checked> Suara umpan balik</label>
-
-            <div style="height:12px"></div>
-
-            <div class="muted">Skor: +10 untuk benar.</div>
-
-            <div style="height:12px"></div>
-            <div class="muted">Tips: Gunakan mode 10 soal untuk latihan cepat.</div>
-          </div>
-        </aside>
+<body class="h-full gradient-bg font-sans"><!-- Loading Screen -->
+  <div id="loadingScreen" class="fixed inset-0 flex items-center justify-center z-50">
+    <div class="text-center">
+      <div class="loading-spinner mx-auto mb-4"></div>
+      <div class="text-white text-xl font-semibold">
+        Memuat Quiz...
       </div>
-
-      <footer>
-        <div class="small muted">File ini dibuat otomatis — salin HTML dan jalankan di browser.</div>
-      </footer>
+      <div class="text-white/80 text-sm mt-2">
+        Menyiapkan soal-soal terbaik untuk Anda
+      </div>
+    </div>
+  </div><!-- Main Container -->
+  <div id="mainContent" class="min-h-full p-4 sm:p-6 lg:p-8 hidden"><!-- Header -->
+    <header class="text-center mb-6 sm:mb-8">
+      <h1 id="appTitle" class="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-black mb-4 pulse-animation">
+        Quiz
+        Kotoba</h1>
+      <p class="text-black/90 text-base sm:text-lg lg:text-xl">Uji pengetahuan Anda dengan soal-soal pilihan ganda
+      </p>
+    </header><!-- Welcome Screen -->
+    <div id="welcomeScreen" class="max-w-4xl mx-auto">
+      <div class="glass-effect rounded-2xl p-6 sm:p-8 lg:p-10 fade-in">
+        <div class="text-center mb-6 sm:mb-8">
+          <div class="text-4xl sm:text-5xl lg:text-6xl mb-4">
+            📚
+          </div>
+          <h2 id="welcomeText" class="text-xl sm:text-2xl lg:text-3xl font-bold text-black mb-4">Selamat
+            datang di Quiz Kotoba</h2>
+          <p class="text-sm sm:text-base lg:text-lg text-black/80">Pilih bab dan jumlah soal yang ingin Anda
+            kerjakan</p>
+        </div><!-- Chapter Selection -->
+        <div class="mb-6"><label class="block text-black font-semibold mb-3 text-base sm:text-lg">Pilih
+            Bab:</label> <select id="chapterSelect"
+            class="w-full p-3 sm:p-4 rounded-lg bg-white/20 text-black text-sm sm:text-base border border-white/30 focus:outline-none focus:ring-2 focus:ring-white/50">
+            <option value="">-- Pilih Bab --</option>
+            <option value="bab1">Bab 1 </option>
+            <option value="bab2">Bab 2 </option>
+            <option value="bab3">Bab 3 </option>
+            <option value="bab4">Bab 4 </option>
+            <option value="bab5">Bab 5 </option>
+            <option value="bab6">Bab 6 </option>
+            <option value="bab7">Bab 7 </option>
+            <option value="bab8">Bab 8 </option>
+            <option value="bab9">Bab 9 </option>
+            <option value="bab10">Bab 10 </option>
+            <option value="bab10">Bab 11 </option>
+            <option value="bab10">Bab 12 </option>
+            <option value="bab10">Bab 13 </option>
+            <option value="bab10">Bab 14 </option>
+            <option value="bab10">Bab 15 </option>
+            <option value="bab10">Bab 16 </option>
+            <option value="bab10">Bab 17 </option>
+            <option value="bab10">Bab 18 </option>
+            <option value="bab10">Bab 19 </option>
+            <option value="bab10">Bab 20 </option>
+          </select>
+        </div><!-- Question Count Selection -->
+        <div class="mb-8"><label class="block text-black font-semibold mb-3 text-base sm:text-lg">Jumlah
+            Soal:</label>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3"><button
+              class="question-count-btn p-3 sm:p-4 rounded-lg bg-white/20 text-black text-sm sm:text-base border border-white/30 hover:bg-white/30 transition-colors"
+              data-count="10">10 Soal</button> <button
+              class="question-count-btn p-3 sm:p-4 rounded-lg bg-white/20 text-black text-sm sm:text-base border border-white/30 hover:bg-white/30 transition-colors"
+              data-count="20">20 Soal</button> <button
+              class="question-count-btn p-3 sm:p-4 rounded-lg bg-white/20 text-black text-sm sm:text-base border border-white/30 hover:bg-white/30 transition-colors"
+              data-count="30">30 Soal</button> <button
+              class="question-count-btn p-3 sm:p-4 rounded-lg bg-white/20 text-black text-sm sm:text-base border border-white/30 hover:bg-white/30 transition-colors"
+              data-count="40">40 Soal</button>
+          </div>
+        </div><button id="startQuizBtn"
+          class="w-full py-4 sm:py-5 bg-gradient-to-r from-blue-600 to-blue-800 text-white text-base sm:text-lg font-bold rounded-lg hover:from-blue-700 hover:to-blue-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled> <span id="startButtonText">Mulai Quiz</span> </button>
+      </div>
+    </div><!-- Quiz Screen -->
+    <div id="quizScreen" class="max-w-4xl mx-auto hidden"><!-- Progress Bar -->
+      <div class="glass-effect rounded-lg p-4 sm:p-5 mb-6">
+        <div class="flex justify-between items-center mb-2"><span
+            class="text-black font-semibold text-base sm:text-lg">Progress</span> <span id="progressText"
+            class="text-black text-base sm:text-lg">1 / 10</span>
+        </div>
+        <div class="w-full bg-white/20 rounded-full h-3">
+          <div id="progressBar"
+            class="bg-gradient-to-r from-green-400 to-green-600 h-3 rounded-full transition-all duration-300"
+            style="width: 10%"></div>
+        </div>
+      </div><!-- Question Card -->
+      <div class="glass-effect rounded-2xl p-6 sm:p-8 lg:p-10 slide-in">
+        <div class="mb-6">
+          <div class="flex items-center justify-between mb-4"><span id="questionNumber"
+              class="text-black/80 font-medium text-base sm:text-lg">Soal 1</span> <span id="timeRemaining"
+              class="text-black/80 font-medium text-base sm:text-lg">⏱️ 30s</span>
+          </div>
+          <h3 id="questionText" class="text-lg sm:text-xl lg:text-2xl font-semibold text-black leading-relaxed">
+            Pertanyaan akan
+            muncul di sini...</h3>
+        </div><!-- Answer Options -->
+        <div id="answerOptions" class="space-y-3 mb-6"><!-- Options will be generated here -->
+        </div><!-- Next Button --> <button id="nextBtn"
+          class="w-full py-4 sm:py-5 bg-gradient-to-r from-blue-600 to-blue-800 text-white text-base sm:text-lg font-bold rounded-lg hover:from-blue-700 hover:to-blue-900 transition-colors hidden">
+          Soal Berikutnya </button>
+      </div>
+    </div><!-- Results Screen -->
+    <div id="resultsScreen" class="max-w-4xl mx-auto hidden">
+      <div class="glass-effect rounded-2xl p-6 sm:p-8 lg:p-10 text-center fade-in">
+        <div class="text-4xl sm:text-5xl lg:text-6xl mb-6">
+          🎉
+        </div>
+        <h2 class="text-2xl sm:text-3xl lg:text-4xl font-bold text-black mb-4">Quiz Selesai!</h2>
+        <div class="text-3xl sm:text-4xl lg:text-5xl font-bold text-black mb-4" id="finalScore">
+          0/10
+        </div>
+        <div class="text-xl sm:text-2xl lg:text-3xl text-black/90 mb-4" id="scorePercentage">
+          0%
+        </div>
+        <div class="text-sm sm:text-base lg:text-lg text-black/80 mb-8" id="scoreMessage">
+          Terus berlatih untuk hasil yang lebih baik!
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+          <div class="bg-white/10 rounded-lg p-4 sm:p-5">
+            <div class="text-2xl sm:text-3xl font-bold text-green-300" id="correctCount">
+              0
+            </div>
+            <div class="text-sm sm:text-base text-black/80">
+              Benar
+            </div>
+          </div>
+          <div class="bg-white/10 rounded-lg p-4 sm:p-5">
+            <div class="text-2xl sm:text-3xl font-bold text-red-300" id="wrongCount">
+              0
+            </div>
+            <div class="text-sm sm:text-base text-black/80">
+              Salah
+            </div>
+          </div>
+          <div class="bg-white/10 rounded-lg p-4 sm:p-5">
+            <div class="text-2xl sm:text-3xl font-bold text-blue-300" id="totalTime">
+              0s
+            </div>
+            <div class="text-sm sm:text-base text-black/80">
+              Total Waktu
+            </div>
+          </div>
+        </div><button id="restartBtn"
+          class="px-8 sm:px-10 py-4 sm:py-5 bg-gradient-to-r from-blue-600 to-blue-800 text-white text-base sm:text-lg font-bold rounded-lg hover:from-blue-700 hover:to-blue-900 transition-colors">
+          Mulai Quiz Baru </button>
+      </div>
     </div>
   </div>
+  <script>
+    // Indonesian-Japanese vocabulary database with Kanji
+    const questionsDB = {
+      bab1: [
+        {
+          question: "Apa bahasa Jepang dari 'Saya'?",
+          options: ["あなた", "わたし", "かれ", "かのじょ"],
+          correct: 1
+        },
+        {
+          question: "Apa arti dari あなた?",
+          options: ["Saya", "Kamu", "Dia", "Mereka"],
+          correct: 1
+        },
+        {
+          question: "Apa bahasa Jepang dari 'Orang itu' (biasa)?",
+          options: ["あのひと", "あのかた", "かれ", "かのじょ"],
+          correct: 0
+        },
+        {
+          question: "あのかた adalah bentuk sopan dari?",
+          options: ["あのひと", "あなた", "かのじょ", "わたし"],
+          correct: 0
+        },
+        {
+          question: "Apa arti ～さん?",
+          options: ["Panggilan untuk anak", "Saudara/Sdr.", "Jamak", "Umur"],
+          correct: 1
+        },
+        {
+          question: "Apa fungsi ～ちゃん?",
+          options: ["Panggilan untuk anak", "Panggilan hormat", "Panggilan guru", "Untuk hewan"],
+          correct: 0
+        },
+        {
+          question: "～じん berarti?",
+          options: ["Bahasa ~", "Orang ~", "Tempat ~", "Nama ~"],
+          correct: 1
+        },
+        {
+          question: "せんせい berarti?",
+          options: ["Guru/dosen", "Siswa", "Pegawai kantor", "Dokter"],
+          correct: 0
+        },
+        {
+          question: "がくせい berarti?",
+          options: ["Pegawai toko", "Guru", "Siswa/murid", "Dokter"],
+          correct: 2
+        },
+        {
+          question: "かいしゃいん berarti?",
+          options: ["Pegawai bank", "Pegawai perusahaan", "Pegawai negeri", "Peneliti"],
+          correct: 1
+        },
+        {
+          question: "Apa arti ぎんこういん?",
+          options: ["Pegawai bank", "Pegawai kantor pos", "Pegawai perusahaan", "Pegawai universitas"],
+          correct: 0
+        },
+        {
+          question: "いしゃ adalah?",
+          options: ["Dokter", "Guru", "Peneliti", "Mahasiswa"],
+          correct: 0
+        },
+        {
+          question: "けんきゅうしゃ berarti?",
+          options: ["Dokter", "Peneliti", "Guru", "Pegawai toko"],
+          correct: 1
+        },
+        {
+          question: "だれ berarti?",
+          options: ["Apa", "Di mana", "Siapa", "Kapan"],
+          correct: 2
+        },
+        {
+          question: "どなた adalah bentuk sopan dari?",
+          options: ["なに", "だれ", "どこ", "どうして"],
+          correct: 1
+        },
+        {
+          question: "Apa arti ～さい?",
+          options: ["Bahasa ~", "Umur ~", "Orang ~", "Nama ~"],
+          correct: 1
+        },
+        {
+          question: "なんさい berarti?",
+          options: ["Jam berapa", "Berapa umur", "Di mana", "Apa itu"],
+          correct: 1
+        },
+        {
+          question: "おいくつ adalah bentuk sopan dari?",
+          options: ["なんさい", "だれ", "なん", "どこ"],
+          correct: 0
+        },
+        {
+          question: "はじめまして biasa dipakai saat?",
+          options: ["Berpisah", "Berkenalan", "Minta maaf", "Memberi hadiah"],
+          correct: 1
+        },
+        {
+          question: "どぞよろしくおねがいします diucapkan saat?",
+          options: ["Setelah perkenalan", "Saat makan", "Saat tidur", "Saat marah"],
+          correct: 0
+        },
+        {
+          question: "Kalimat ～からきました berarti?",
+          options: ["Saya berasal dari ~", "Saya bekerja di ~", "Saya belajar di ~", "Saya tinggal di ~"],
+          correct: 0
+        },
+        {
+          question: "しつれいですが digunakan untuk?",
+          options: ["Permisi sebelum bertanya", "Saat makan", "Saat marah", "Saat tidur"],
+          correct: 0
+        },
+        {
+          question: "おなまえは berarti?",
+          options: ["Umur berapa?", "Nama Anda siapa?", "Anda dari mana?", "Apa pekerjaan Anda?"],
+          correct: 1
+        },
+        {
+          question: "にほん berarti?",
+          options: ["Bahasa Jepang", "Jepang", "Orang Jepang", "Tinggal di Jepang"],
+          correct: 1
+        },
+        {
+          question: "インドネシア berarti?",
+          options: ["Orang Indonesia", "Indonesia", "Bahasa Indonesia", "Jepang"],
+          correct: 1
+        },
+        {
+          question: "にほんじん berarti?",
+          options: ["Bahasa Jepang", "Orang Jepang", "Jepang", "Budaya Jepang"],
+          correct: 1
+        },
+        {
+          question: "フランス berarti?",
+          options: ["Korea", "Perancis", "India", "Indonesia"],
+          correct: 1
+        },
+        {
+          question: "ちゅうごく berarti?",
+          options: ["Cina", "Korea", "India", "Thailand"],
+          correct: 0
+        },
+        {
+          question: "かんこく adalah?",
+          options: ["Thailand", "Korea", "Cina", "Indonesia"],
+          correct: 1
+        },
+        {
+          question: "イギリス berarti?",
+          options: ["Perancis", "Inggris", "Amerika", "Italia"],
+          correct: 1
+        },
+        {
+          question: "Apa bahasa Jepang dari 'Amerika'?",
+          options: ["アメリカ", "インド", "ドイツ", "ちゅうごく"],
+          correct: 0
+        },
+        {
+          question: "～人 dibaca sebagai?",
+          options: ["ひと", "じん", "どなた", "にん"],
+          correct: 1
+        },
+        {
+          question: "Kalimat perkenalan penutup adalah?",
+          options: ["こんにちは", "どうぞよろしくおねがいします", "おはよう", "こんばんは"],
+          correct: 1
+        },
+        {
+          question: "だいがく berarti?",
+          options: ["SMA", "Universitas", "Rumah sakit", "Perusahaan"],
+          correct: 1
+        },
+        {
+          question: "びょういん berarti?",
+          options: ["Rumah sakit", "Sekolah", "Toko", "Bandara"],
+          correct: 0
+        },
+        {
+          question: "せんせい dipakai saat?",
+          options: ["Memanggil guru", "Memanggil teman", "Memanggil keluarga", "Memanggil turis"],
+          correct: 0
+        },
+        {
+          question: "Apa arti はい?",
+          options: ["Tidak", "Iya", "Permisi", "Terima kasih"],
+          correct: 1
+        },
+        {
+          question: "いいえ berarti?",
+          options: ["Tidak", "Ya", "Permisi", "Nama saya"],
+          correct: 0
+        },
+        {
+          question: "Apa arti だれですか？",
+          options: ["Siapa dia?", "Dia dari mana?", "Dia sedang apa?", "Dia umur berapa?"],
+          correct: 0
+        },
+        {
+          question: "けんきゅうしゃ bekerja sebagai?",
+          options: ["Peneliti", "Dokter", "Pegawai kantor", "Pegawai bank"],
+          correct: 0
+        },
+        {
+          question: "Apa bahasa Jepang dari 'Dokter'?",
+          options: ["がくせい", "いしゃ", "だれ", "ぎんこういん"],
+          correct: 1
+        },
+        {
+          question: "Apa bahasa Jepang dari 'Pegawai perusahaan'?",
+          options: ["かいしゃいん", "けんきゅうしゃ", "いしゃ", "がくせい"],
+          correct: 0
+        },
+        {
+          question: "どなたですか？ adalah?",
+          options: ["Siapa? (sopan)", "Apa? (sopan)", "Bagaimana?", "Kenapa?"],
+          correct: 0
+        },
+        {
+          question: "Apa arti はじめまして?",
+          options: ["Selamat pagi", "Selamat malam", "Perkenalkan", "Terima kasih"],
+          correct: 2
+        },
+        {
+          question: "Apa arti どうぞ?",
+          options: ["Permisi", "Silakan", "Terima kasih", "Selamat tidur"],
+          correct: 1
+        },
+        {
+          question: "Apa bahasa Jepang dari 'Nama'?",
+          options: ["なまえ", "くに", "おいくつ", "がくせい"],
+          correct: 0
+        },
+        {
+          question: "Apa arti しつれいですが?",
+          options: ["Maaf permisi…", "Saya lapar", "Tolong ulangi", "Saya tidak tahu"],
+          correct: 0
+        },
+        {
+          question: "にほんご berarti?",
+          options: ["Orang Jepang", "Bahasa Jepang", "Tinggal di Jepang", "Jepang"],
+          correct: 1
+        },
+        {
+          question: "インド berarti?",
+          options: ["Cina", "India", "Perancis", "Korea"],
+          correct: 1
+        },
+        {
+          question: "にほんからきました berarti?",
+          options: ["Saya tinggal di Jepang", "Saya dari Jepang", "Saya belajar di Jepang", "Saya makan di Jepang"],
+          correct: 1
+        },
+        {
+          question: "Apa arti どうもありがとうございます?",
+          options: ["Maaf", "Terima kasih banyak", "Sampai jumpa", "Silakan"],
+          correct: 1
+        }
+      ],
 
-<script>
-// ===== DATA: soal JSON (Kotoba Bab 1) =====
-const QUESTIONS = [
-  {question: "Apa arti dari ‘わたし’?", options:["Kamu","Saya","Dia","Orang itu"], answer: "Saya"},
-  {question: "Apa arti dari ‘あなた’?", options:["Saya","Kamu","Mereka","Orang itu"], answer: "Kamu"},
-  {question: "‘あのひと’ berarti…", options:["Orang itu (sopan)","Orang itu (biasa)","Dia","Orang Jepang"], answer: "Orang itu (biasa)"},
-  {question: "‘あのかた’ adalah bentuk sopan dari…", options:["あなた","あのひと","せんせい","だれ"], answer: "あのひと"},
-  {question: "Akhiran ‘～さん’ digunakan untuk…", options:["Anak kecil","Orang dengan sopan","Guru","Dokter"], answer: "Orang dengan sopan"},
-  {question: "‘～ちゃん’ digunakan untuk…", options:["Dosen","Anak laki/perempuan","Orang asing","Pegawai"], answer: "Anak laki/perempuan"},
-  {question: "Akhiran ‘～じん’ berarti…", options:["Umur","Orang dari negara tertentu","Pegawai","Profesi"], answer: "Orang dari negara tertentu"},
-  {question: "‘せんせい’ berarti…", options:["Guru/dosen","Peneliti","Mahasiswa","Pegawai bank"], answer: "Guru/dosen"},
-  {question: "‘きょうし’ adalah…", options:["Guru untuk menyebut diri sendiri","Guru umum","Dosen asing","Pelajar"], answer: "Guru untuk menyebut diri sendiri"},
-  {question: "‘がくせい’ berarti…", options:["Dokter","Mahasiswa/siswa","Peneliti","Orang Korea"], answer: "Mahasiswa/siswa"},
-  {question: "‘かいしゃいん’ berarti…", options:["Pegawai bank","Pegawai perusahaan","Dokter","Peneliti"], answer: "Pegawai perusahaan"},
-  {question: "‘ぎんこういん’ berarti…", options:["Dokter","Pegawai bank","Peneliti","Guru"], answer: "Pegawai bank"},
-  {question: "‘いしゃ’ artinya…", options:["Pegawai","Dokter","Peneliti","Mahasiswa"], answer: "Dokter"},
-  {question: "‘けんきゅうしゃ’ berarti…", options:["Mahasiswa","Peneliti","Guru","Dosen"], answer: "Peneliti"},
-  {question: "‘だいがく’ berarti…", options:["Bank","Universitas","Rumah sakit","Kantor"], answer: "Universitas"},
-  {question: "‘びょういん’ berarti…", options:["Rumah sakit","Bank","Universitas","Apotek"], answer: "Rumah sakit"},
-  {question: "‘だれ’ berarti…", options:["Di mana","Siapa (biasa)","Kapan","Apa"], answer: "Siapa (biasa)"},
-  {question: "Bentuk sopan dari ‘だれ’ adalah…", options:["おなまえ","おいくつ","どなた","なんさい"], answer: "どなた"},
-  {question: "Akhiran ‘～さい’ digunakan untuk…", options:["Umur","Negara","Orang","Profesi"], answer: "Umur"},
-  {question: "‘なんさい’ berarti…", options:["Umur berapa? (biasa)","Siapa kamu?","Kamu dari mana?","Umur berapa? (sopan)"], answer: "Umur berapa? (biasa)"},
-  {question: "‘おいくつ’ berarti…", options:["Apa pekerjaan Anda?","Berapa umur? (sopan)","Negara mana?","Nama siapa?"], answer: "Berapa umur? (sopan)"},
-  {question: "‘はい’ berarti…", options:["Tidak","Iya","Mungkin","Apa"], answer: "Iya"},
-  {question: "‘いいえ’ berarti…", options:["Tidak","Iya","Tolong","Maaf"], answer: "Tidak"},
-  {question: "‘はじめまして’ digunakan ketika…", options:["Berkenalan pertama kali","Berpisah","Minta maaf","Terima kasih"], answer: "Berkenalan pertama kali"},
-  {question: "‘～からきました’ berarti…", options:["Saya tinggal di…","Saya datang dari…","Saya bekerja di…","Saya pergi ke…"], answer: "Saya datang dari…"},
-  {question: "‘どうぞよろしくおねがいします’ berarti…", options:["Terima kasih banyak","Senang bertemu Anda","Terimalah perkenalan saya","Tolong bantu saya"], answer: "Terimalah perkenalan saya"},
-  {question: "‘しつれいですが’ digunakan untuk…", options:["Permisi (sopan)","Menolak","Menutup percakapan","Mengucapkan terima kasih"], answer: "Permisi (sopan)"},
-  {question: "‘おなまえは’ berarti…", options:["Apa pekerjaan Anda?","Nama Anda siapa?","Umur berapa?","Tinggal di mana?"], answer: "Nama Anda siapa?"},
-  {question: "‘アメリカ’ berarti…", options:["Inggris","Amerika","Jerman","Korea"], answer: "Amerika"},
-  {question: "‘イギリス’ berarti…", options:["Perancis","Inggris","Italia","Belanda"], answer: "Inggris"},
-  {question: "‘インド’ berarti…", options:["India","Indonesia","Jepang","Korea"], answer: "India"},
-  {question: "‘インドネシア’ berarti…", options:["China","Indonesia","India","Jepang"], answer: "Indonesia"},
-  {question: "‘かんこく（韓国）’ berarti…", options:["Korea","China","Jepang","Amerika"], answer: "Korea"},
-  {question: "‘ちゅうごく（中国）’ berarti…", options:["China","Korea","Jepang","Thailand"], answer: "China"},
-  {question: "‘ドイツ’ berarti…", options:["Jerman","Rusia","Belanda","Spanyol"], answer: "Jerman"},
-  {question: "‘にほん（日本）’ berarti…", options:["China","Korea","Jepang","Mesir"], answer: "Jepang"},
-  {question: "‘フランス’ berarti…", options:["Perancis","Belanda","Italia","Kanada"], answer: "Perancis"},
-  {question: "Mana yang berarti 'pegawai perusahaan'?", options:["がくせい","かいしゃいん","いしゃ","びょういん"], answer: "かいしゃいん"},
-  {question: "Mana yang berarti 'peneliti'?", options:["けんきゅうしゃ","せんせい","しゃいん","だれ"], answer: "けんきゅうしゃ"},
-  {question: "Kata yang berarti 'permisi untuk menanyakan sesuatu' adalah…", options:["はじめまして","しつれいですが","おなまえは","なんさい"], answer: "しつれいですが"}
-];
+      bab2: [
+        {
+          question: "Apa arti これ?",
+          options: ["Itu (dekat lawan bicara)", "Ini (dekat pembicara)", "Itu (jauh dari keduanya)", "Milik dia"],
+          correct: 1
+        },
+        {
+          question: "それ berarti?",
+          options: ["Ini", "Itu (dekat lawan bicara)", "Itu (jauh)", "Milik saya"],
+          correct: 1
+        },
+        {
+          question: "あれ berarti?",
+          options: ["Ini", "Itu dekat pembicara", "Itu jauh dari keduanya", "Milik orang lain"],
+          correct: 2
+        },
+        {
+          question: "このほん berarti?",
+          options: ["Buku itu (jauh)", "Buku ini", "Buku itu (dekat lawan bicara)", "Buku mereka"],
+          correct: 1
+        },
+        {
+          question: "そのかばん berarti?",
+          options: ["Tas ini", "Tas itu dekat lawan bicara", "Tas itu jauh", "Tas mereka"],
+          correct: 1
+        },
+        {
+          question: "あのひとは siapa?",
+          options: ["Orang itu jauh", "Orang ini", "Orang itu dekat pembicara", "Orang itu dekat lawan bicara"],
+          correct: 0
+        },
+        {
+          question: "Bahasa Jepang untuk 'majalah' adalah?",
+          options: ["ざっし", "じしょ", "かばん", "ノート"],
+          correct: 0
+        },
+        {
+          question: "じしょ berarti?",
+          options: ["Majalah", "Meja", "Kamus", "Buku tulis"],
+          correct: 2
+        },
+        {
+          question: "とけい adalah?",
+          options: ["Payung", "Jam", "Sepatu", "Mobil"],
+          correct: 1
+        },
+        {
+          question: "かさ berarti?",
+          options: ["Payung", "Tas", "Kursi", "Mobil"],
+          correct: 0
+        },
+        {
+          question: "くつ adalah?",
+          options: ["Sepatu", "Baju", "Mobil", "Meja"],
+          correct: 0
+        },
+        {
+          question: "シャツ berarti?",
+          options: ["Celana", "Baju/kemeja", "Sepatu", "Tas"],
+          correct: 1
+        },
+        {
+          question: "くるま berarti?",
+          options: ["Motor", "Mobil", "Sepeda", "Kereta"],
+          correct: 1
+        },
+        {
+          question: "つくえ adalah?",
+          options: ["Kursi", "Meja", "Rak", "Lemari"],
+          correct: 1
+        },
+        {
+          question: "いす berarti?",
+          options: ["Meja", "Tas", "Kursi", "Rumah"],
+          correct: 2
+        },
+        {
+          question: "これ は なんですか？ artinya?",
+          options: ["Siapa ini?", "Berapa ini?", "Apa ini?", "Mana ini?"],
+          correct: 2
+        },
+        {
+          question: "そのほん は わたしのです。 Artinya?",
+          options: ["Buku ini milik saya", "Buku itu (dekat kamu) milik saya", "Buku itu (jauh) milik saya", "Buku dia"],
+          correct: 1
+        },
+        {
+          question: "あれ は だれの かばんですか？",
+          options: ["Tas siapa itu (jauh)?", "Tas apa itu (dekat pembicara)?", "Siapa itu?", "Apa ini?"],
+          correct: 0
+        },
+        {
+          question: "このくつ は いくらですか？ artinya?",
+          options: ["Berapa harga sepatu ini?", "Berapa umur sepatu itu?", "Sepatu siapa ini?", "Dimana sepatu ini?"],
+          correct: 0
+        },
+        {
+          question: "チョコレート berarti?",
+          options: ["Teh", "Cokelat", "Kue", "Keju"],
+          correct: 1
+        },
+        {
+          question: "コーヒー berarti?",
+          options: ["Teh", "Susu", "Kopi", "Cokelat"],
+          correct: 2
+        },
+        {
+          question: "にほんご berarti?",
+          options: ["Bahasa Jepang", "Orang Jepang", "Jepang", "Tulisan Jepang"],
+          correct: 0
+        },
+        {
+          question: "えいご berarti?",
+          options: ["Bahasa Inggris", "Bahasa Jepang", "Bahasa Korea", "Bahasa Cina"],
+          correct: 0
+        },
+        {
+          question: "これ は にほんごですか？ Jawaban benar:",
+          options: ["はい、そうです", "はい、ちがいます", "いいえ、そうです", "はい、どうぞ"],
+          correct: 0
+        },
+        {
+          question: "それ は えいごですか？ Jika bukan, jawabannya:",
+          options: ["はい、そうです", "いいえ、ちがいます", "どうぞよろしく", "おはよう"],
+          correct: 1
+        },
+        {
+          question: "このかさ の arti yang benar?",
+          options: ["Payung saya", "Payung ini", "Payung itu dekat kamu", "Payung itu jauh"],
+          correct: 1
+        },
+        {
+          question: "あのくるま の arti?",
+          options: ["Mobil ini", "Mobil itu dekat kamu", "Mobil itu jauh dari kita", "Mobil saya"],
+          correct: 2
+        },
+        {
+          question: "どれ adalah?",
+          options: ["Yang mana?", "Untuk apa?", "Siapa?", "Bagaimana?"],
+          correct: 0
+        },
+        {
+          question: "この〜, その〜, あの〜 digunakan untuk?",
+          options: ["Menyebut kata kerja", "Menunjuk benda + kata benda", "Menunjuk umur", "Menyebut waktu"],
+          correct: 1
+        },
+        {
+          question: "それ は わたしの ほんです。 Artinya?",
+          options: ["Itu buku dia", "Itu buku saya", "Ini buku saya", "Itu buku mereka"],
+          correct: 1
+        },
+        {
+          question: "このシャツ は やすいです。 Artinya?",
+          options: ["Kemeja ini murah", "Kemeja itu mahal", "Kemeja itu jauh", "Kemeja itu bagus"],
+          correct: 0
+        },
+        {
+          question: "そのくつ は たかいです。 Artinya?",
+          options: ["Sepatu itu murah", "Sepatu itu mahal", "Sepatu itu rusak", "Sepatu ini mahal"],
+          correct: 1
+        },
+        {
+          question: "あのつくえ は ちいさいです。 Artinya?",
+          options: ["Meja itu (jauh) kecil", "Meja ini kecil", "Meja itu besar", "Meja itu dekat kamu kecil"],
+          correct: 0
+        },
+        {
+          question: "どのかばんですか？ artinya?",
+          options: ["Dimana tasnya?", "Tas yang mana?", "Apa tasnya?", "Siapa pemilik tasnya?"],
+          correct: 1
+        },
+        {
+          question: "このチョコレート は あまいです。",
+          options: ["Cokelat ini manis", "Cokelat itu pahit", "Cokelat itu manis", "Cokelat ini pahit"],
+          correct: 0
+        },
+        {
+          question: "Apa bahasa Jepang dari 'buku'?",
+          options: ["ざっし", "ほん", "じしょ", "しんぶん"],
+          correct: 1
+        },
+        {
+          question: "Apa bahasa Jepang dari 'tas'?",
+          options: ["いす", "かさ", "かばん", "くつ"],
+          correct: 2
+        },
+        {
+          question: "Apa bahasa Jepang dari 'payung'?",
+          options: ["あめ", "かさ", "くつ", "とけい"],
+          correct: 1
+        },
+        {
+          question: "Apa bahasa Jepang dari 'kursi'?",
+          options: ["いす", "つくえ", "くつ", "シャツ"],
+          correct: 0
+        },
+        {
+          question: "それ は なんのほんですか？ artinya?",
+          options: ["Ini buku apa?", "Itu buku apa?", "Buku siapa ini?", "Buku siapa itu?"],
+          correct: 1
+        },
+        {
+          question: "このとけい は どこのですか？",
+          options: ["Jam siapa ini?", "Jam ini dari mana?", "Jam itu dari mana?", "Jam siapa itu?"],
+          correct: 1
+        },
+        {
+          question: "そのくるま は だれのですか？",
+          options: ["Mobil siapa ini?", "Mobil siapa itu dekat kamu?", "Mobil siapa itu jauh?", "Mobil apa itu?"],
+          correct: 1
+        },
+        {
+          question: "あれ は にほんの くるまです。 Artinya?",
+          options: ["Itu mobil Jepang", "Ini mobil Jepang", "Itu mobil Cina", "Itu mobil murah"],
+          correct: 0
+        },
+        {
+          question: "このざっし は おもしろいです。",
+          options: ["Majalah ini menarik", "Majalah ini membosankan", "Majalah itu lucu", "Majalah itu mahal"],
+          correct: 0
+        },
+        {
+          question: "Apa arti そうです?",
+          options: ["Benar/ya", "Tidak", "Tidak tahu", "Silakan"],
+          correct: 0
+        },
+        {
+          question: "ちがいます berarti?",
+          options: ["Benar", "Salah/bukan", "Maaf", "Silakan"],
+          correct: 1
+        },
+        {
+          question: "これ は わたしのシャツです。 Artinya?",
+          options: ["Ini kemeja saya", "Itu kemeja saya", "Ini kemeja dia", "Itu kemeja dia"],
+          correct: 0
+        },
+        {
+          question: "Apa arti この・その・あの?",
+          options: ["Ini–itu–sana + kata benda", "Saya–kamu–dia", "Siapa–apa–dimana", "Besar–kecil–panjang"],
+          correct: 0
+        },
+        {
+          question: "どれ が あなたのですか？",
+          options: ["Yang mana milik kamu?", "Itu milik kamu?", "Ini milik kamu?", "Kamu dari mana?"],
+          correct: 0
+        }
+      ],
 
-// ====== APP LOGIC SEDERHANA ======
-let config = { total:40, timerOn:true, timerSec:20, shuffle:true, sound:true };
-let state = { pool:[], cur:0, score:0, right:0, wrong:0, remainingTime:0, timerId:null };
+      bab3: [
+        {
+          question: "Apa arti ここ?",
+          options: ["Di sana", "Di sini", "Di situ", "Jauh sekali"],
+          correct: 1
+        },
+        {
+          question: "そこ berarti?",
+          options: ["Di sini", "Di situ (dekat lawan bicara)", "Di sana (jauh)", "Di belakang"],
+          correct: 1
+        },
+        {
+          question: "あそこ berarti?",
+          options: ["Di sini", "Di situ", "Di sana (jauh dari kedua pembicara)", "Di depan"],
+          correct: 2
+        },
+        {
+          question: "こちら adalah bentuk sopan dari?",
+          options: ["ここ", "そこ", "あそこ", "どこ"],
+          correct: 0
+        },
+        {
+          question: "Bahasa Jepang dari 'ruang kelas' adalah?",
+          options: ["しょくどう", "きょうしつ", "じむしょ", "トイレ"],
+          correct: 1
+        },
+        {
+          question: "しょくどう berarti?",
+          options: ["Dapur", "Ruang makan/kantin", "Ruang guru", "Ruang tamu"],
+          correct: 1
+        },
+        {
+          question: "じむしょ adalah?",
+          options: ["Toilet", "Ruang kantor", "Ruang rapat", "Pos satpam"],
+          correct: 1
+        },
+        {
+          question: "かいぎしつ berarti?",
+          options: ["Ruang rapat", "Ruang kelas", "Ruang makan", "Ruang direktur"],
+          correct: 0
+        },
+        {
+          question: "うけつけ adalah?",
+          options: ["Satpam", "Resepsionis", "Pembeli", "Guru"],
+          correct: 1
+        },
+        {
+          question: "ロビー berarti?",
+          options: ["Lobi", "Lorong", "Ruang makan", "Kamar mandi"],
+          correct: 0
+        },
+        {
+          question: "トイレ berarti?",
+          options: ["Kamar mandi/toilet", "Dapur", "Kantin", "Ruang rapat"],
+          correct: 0
+        },
+        {
+          question: "でんわ は どこですか？ Artinya?",
+          options: ["Telepon siapa?", "Telepon di mana?", "Nomor telepon berapa?", "Siapa yang menelepon?"],
+          correct: 1
+        },
+        {
+          question: "エレベーター adalah?",
+          options: ["Tangga", "Lift", "Pintu geser", "Kereta"],
+          correct: 1
+        },
+        {
+          question: "エスカレーター adalah?",
+          options: ["Tangga biasa", "Tangga berjalan", "Lift", "Panggung"],
+          correct: 1
+        },
+        {
+          question: "うりば berarti?",
+          options: ["Tempat membeli barang", "Tempat duduk", "Tempat makan", "Tempat mandi"],
+          correct: 0
+        },
+        {
+          question: "ちかいっかい berarti?",
+          options: ["Lantai dasar", "Lantai bawah tanah", "Lantai 3", "Lobi"],
+          correct: 1
+        },
+        {
+          question: "かい (階) digunakan untuk menyatakan?",
+          options: ["Jam", "Orang", "Lantai", "Benda pipih"],
+          correct: 2
+        },
+        {
+          question: "なんがい berarti?",
+          options: ["Lantai berapa?", "Berapa orang?", "Berapa harga?", "Berapa umur?"],
+          correct: 0
+        },
+        {
+          question: "へやばんごう berarti?",
+          options: ["Nomor rumah", "Nomor kamar", "Nomor hape", "Nomor lantai"],
+          correct: 1
+        },
+        {
+          question: "でんわばんごう berarti?",
+          options: ["Nomor telepon", "Nomor kamar", "Nomor lantai", "Kode negara"],
+          correct: 0
+        },
+        {
+          question: "Apa bahasa Jepang dari 'negara'?",
+          options: ["いえ", "くに", "まち", "やま"],
+          correct: 1
+        },
+        {
+          question: "うち berarti?",
+          options: ["Rumah", "Negara", "Kamar", "Kantor"],
+          correct: 0
+        },
+        {
+          question: "いえ berarti?",
+          options: ["Rumah (bangunan)", "Rumah sakit", "Negara", "Lobi"],
+          correct: 0
+        },
+        {
+          question: "ここ は きょうしつです。 Artinya?",
+          options: ["Ini ruang kelas", "Itu ruang kelas", "Di sini ruang kelas", "Ruang kelas saya"],
+          correct: 2
+        },
+        {
+          question: "あそこ は トイレです。 Artinya?",
+          options: ["Ini toilet", "Itu toilet jauh", "Toilet saya", "Toilet dekat saya"],
+          correct: 1
+        },
+        {
+          question: "どこ berarti?",
+          options: ["Di mana", "Apa", "Siapa", "Kapan"],
+          correct: 0
+        },
+        {
+          question: "こちら は しょくどうです。 Artinya?",
+          options: ["Di sini kantin", "Itu kantin", "Sana kantin", "Kantin saya"],
+          correct: 0
+        },
+        {
+          question: "あの うりば は どこですか？",
+          options: ["Itu tempat apa?", "Di mana tempat jual itu?", "Apa yang dijual?", "Berapa harganya?"],
+          correct: 1
+        },
+        {
+          question: "くに は どこですか？ Artinya?",
+          options: ["Apa negara Anda?", "Berapa nomor negara Anda?", "Anda dari negara mana?", "Dimana rumah Anda?"],
+          correct: 2
+        },
+        {
+          question: "そのロビー は どこですか？",
+          options: ["Lobi itu di mana?", "Lobi ini di mana?", "Lobi jauh itu di mana?", "Lobi siapa?"],
+          correct: 0
+        },
+        {
+          question: "ここ は ロビーです。 Artinya?",
+          options: ["Ini lobi", "Itu lobi", "Lobi jauh", "Lobi lantai 3"],
+          correct: 0
+        },
+        {
+          question: "Apa arti たばこうりば?",
+          options: ["Tempat jual roti", "Tempat jual rokok", "Tempat jual sayur", "Tempat makan"],
+          correct: 1
+        },
+        {
+          question: "ちか は?",
+          options: ["Lantai 1", "Lantai atas", "Lantai bawah tanah", "Gudang"],
+          correct: 2
+        },
+        {
+          question: "これは エレベーターです。 Artinya?",
+          options: ["Ini eskalator", "Ini lift", "Itu lift", "Ini tangga"],
+          correct: 1
+        },
+        {
+          question: "それ は トイレですか？ Jawaban benar:",
+          options: ["はい、そうです", "いいえ、ちがいます", "はい、どうぞ", "どこですか？"],
+          correct: 0
+        },
+        {
+          question: "かいぎしつ は なんがいですか？",
+          options: ["Ruang rapat di lantai berapa?", "Ruang rapat siapa?", "Ruang rapat di mana?", "Berapa harga ruang rapat?"],
+          correct: 0
+        },
+        {
+          question: "Apa arti たばこ?",
+          options: ["Roti", "Rokok", "Kopi", "Minuman"],
+          correct: 1
+        },
+        {
+          question: "にほん は どこですか？ Artinya?",
+          options: ["Jepang itu apa?", "Jepang itu di mana?", "Jepang itu siapa?", "Jepang itu kapan?"],
+          correct: 1
+        },
+        {
+          question: "このへや は なんがいですか？",
+          options: ["Kamar ini nomor berapa?", "Kamar ini lantai berapa?", "Kamar ini berapa harga?", "Siapa pemilik kamar ini?"],
+          correct: 1
+        },
+        {
+          question: "エスカレーター を つかいます。 Artinya?",
+          options: ["Menggunakan tangga berjalan", "Menggunakan lift", "Menggunakan pintu", "Menggunakan mobil"],
+          correct: 0
+        },
+        {
+          question: "ロビー は いっかいです。 Artinya?",
+          options: ["Lobi ada di lantai 1", "Lobi di lantai bawah", "Lobi di atap", "Lobi di ruang kelas"],
+          correct: 0
+        },
+        {
+          question: "きょうしつ は さんがいです。 Artinya?",
+          options: ["Ruang kelas di lantai 3", "Ruang kelas nomor 3", "Ruang kelas jam 3", "Ruang kelas blok 3"],
+          correct: 0
+        },
+        {
+          question: "ここ は なんがいですか？",
+          options: ["Ini lantai berapa?", "Ini nomor berapa?", "Ini jam berapa?", "Ini siapa?"],
+          correct: 0
+        },
+        {
+          question: "うち は どこですか？ Artinya?",
+          options: ["Rumah Anda di mana?", "Rumah ini siapa?", "Rumah itu apa?", "Rumah itu nomor berapa?"],
+          correct: 0
+        },
+        {
+          question: "へや は どこですか？",
+          options: ["Kamar di mana?", "Kamar siapa?", "Kamar apa?", "Kamar nomor berapa?"],
+          correct: 0
+        },
+        {
+          question: "じむしょ は こちらです。 Artinya?",
+          options: ["Kantor ada di sini (sopan)", "Kantor itu jauh", "Kantor itu di situ", "Kantor itu milik saya"],
+          correct: 0
+        },
+        {
+          question: "あそこ は ロビーですか？ Jika salah, jawab:",
+          options: ["はい、そうです", "いいえ、ちがいます", "どうも", "おねがいします"],
+          correct: 1
+        },
+        {
+          question: "いえ は どちらですか？ Artinya?",
+          options: ["Rumah Anda di mana? (sopan)", "Rumah ini siapa?", "Rumah itu apa?", "Rumah itu kapan?"],
+          correct: 0
+        }
+      ],
 
-const startBtn = document.getElementById('startBtn');
-const flashBtn = document.getElementById('flashBtn');
-const startScreen = document.getElementById('startScreen');
-const gameScreen = document.getElementById('gameScreen');
-const resultScreen = document.getElementById('resultScreen');
-const flashcardScreen = document.getElementById('flashcardScreen');
+      bab4: [
+        {
+          question: "いま なんじですか？ Artinya?",
+          options: ["Sekarang hari apa?", "Sekarang jam berapa?", "Besok jam berapa?", "Tadi jam berapa?"],
+          correct: 1
+        },
+        {
+          question: "ごぜん berarti?",
+          options: ["Pagi (AM)", "Sore", "Malam", "Siang"],
+          correct: 0
+        },
+        {
+          question: "ごご berarti?",
+          options: ["Pagi", "Sore/siang (PM)", "Dini hari", "Malam"],
+          correct: 1
+        },
+        {
+          question: "はん berarti?",
+          options: ["Kurang", "Lewat", "Setengah", "Lebih"],
+          correct: 2
+        },
+        {
+          question: "Apa arti きょう?",
+          options: ["Kemarin", "Besok", "Hari ini", "Minggu depan"],
+          correct: 2
+        },
+        {
+          question: "あした berarti?",
+          options: ["Kemarin", "Besok", "Hari ini", "Tadi pagi"],
+          correct: 1
+        },
+        {
+          question: "きのう berarti?",
+          options: ["Hari ini", "Besok", "Kemarin", "Lusa"],
+          correct: 2
+        },
+        {
+          question: "けさ berarti?",
+          options: ["Tadi malam", "Tadi pagi", "Besok pagi", "Sekarang"],
+          correct: 1
+        },
+        {
+          question: "こんばん berarti?",
+          options: ["Besok pagi", "Besok malam", "Malam ini", "Tadi malam"],
+          correct: 2
+        },
+        {
+          question: "やすみ berarti?",
+          options: ["Belajar", "Istirahat/libur", "Bekerja", "Ujian"],
+          correct: 1
+        },
+        {
+          question: "ひるやすみ berarti?",
+          options: ["Libur malam", "Istirahat siang", "Libur pagi", "Waktu makan malam"],
+          correct: 1
+        },
+        {
+          question: "しけん adalah?",
+          options: ["Ujian/test", "Libur", "Kerja", "Pertemuan"],
+          correct: 0
+        },
+        {
+          question: "べんきょう berarti?",
+          options: ["Belajar", "Kerja", "Istirahat", "Pulang"],
+          correct: 0
+        },
+        {
+          question: "かいぎ berarti?",
+          options: ["Ujian", "Rapat", "Liburan", "Belajar"],
+          correct: 1
+        },
+        {
+          question: "Apa arti なんようび?",
+          options: ["Bulan berapa?", "Tanggal berapa?", "Hari apa?", "Jam berapa?"],
+          correct: 2
+        },
+        {
+          question: "にちようび berarti?",
+          options: ["Hari Sabtu", "Hari Senin", "Hari Minggu", "Hari Jumat"],
+          correct: 2
+        },
+        {
+          question: "げつようび berarti?",
+          options: ["Senin", "Selasa", "Rabu", "Kamis"],
+          correct: 0
+        },
+        {
+          question: "かようび berarti?",
+          options: ["Selasa", "Rabu", "Kamis", "Sabtu"],
+          correct: 0
+        },
+        {
+          question: "すいようび berarti?",
+          options: ["Rabu", "Selasa", "Kamis", "Jumat"],
+          correct: 0
+        },
+        {
+          question: "もくようび berarti?",
+          options: ["Kamis", "Selasa", "Jumat", "Minggu"],
+          correct: 0
+        },
+        {
+          question: "きんようび berarti?",
+          options: ["Sabtu", "Minggu", "Jumat", "Senin"],
+          correct: 2
+        },
+        {
+          question: "どようび berarti?",
+          options: ["Sabtu", "Jumat", "Kamis", "Minggu"],
+          correct: 0
+        },
+        {
+          question: "Apa arti ～から",
+          options: ["Sampai", "Dari", "Dengan", "Tanpa"],
+          correct: 1
+        },
+        {
+          question: "~まで berarti?",
+          options: ["Dari", "Dengan", "Sampai", "Sementara"],
+          correct: 2
+        },
+        {
+          question: "Apa arti のみます?",
+          options: ["Makan", "Pergi", "Minum", "Tidur"],
+          correct: 2
+        },
+        {
+          question: "たべます berarti?",
+          options: ["Makan", "Minum", "Pulang", "Belajar"],
+          correct: 0
+        },
+        {
+          question: "ねます berarti?",
+          options: ["Tidur", "Bangun", "Pergi", "Mandi"],
+          correct: 0
+        },
+        {
+          question: "おきます berarti?",
+          options: ["Bangun", "Tidur", "Pulang", "Pergi"],
+          correct: 0
+        },
+        {
+          question: "べんきょうします berarti?",
+          options: ["Belajar", "Pergi", "Makan", "Mandi"],
+          correct: 0
+        },
+        {
+          question: "はたらきます berarti?",
+          options: ["Bekerja", "Belajar", "Tidur", "Pulang"],
+          correct: 0
+        },
+        {
+          question: "いきます berarti?",
+          options: ["Pulang", "Pergi", "Makan", "Datang"],
+          correct: 1
+        },
+        {
+          question: "きます berarti?",
+          options: ["Pergi", "Datang", "Makan", "Mandi"],
+          correct: 1
+        },
+        {
+          question: "かえります berarti?",
+          options: ["Pulang", "Pergi", "Tidur", "Bangun"],
+          correct: 0
+        },
+        {
+          question: "なんじ berarti?",
+          options: ["Jam berapa?", "Hari apa?", "Tanggal berapa?", "Berapa umur?"],
+          correct: 0
+        },
+        {
+          question: "なんぷん berarti?",
+          options: ["Berapa menit?", "Berapa jam?", "Berapa hari?", "Berapa kali?"],
+          correct: 0
+        },
+        {
+          question: "9:30 dibaca?",
+          options: ["くじさんじゅっぷん", "くじはん", "くじごじゅっぷん", "はんくじ"],
+          correct: 1
+        },
+        {
+          question: "3:15 dibaca?",
+          options: ["さんじじゅうごふん", "さんじじっぷん", "ごじさんじゅう", "さんじはん"],
+          correct: 0
+        },
+        {
+          question: "Apa arti けさ?",
+          options: ["Besok pagi", "Tadi pagi", "Pagi nanti", "Kemarin pagi"],
+          correct: 1
+        },
+        {
+          question: "Apa arti こんばん?",
+          options: ["Besok malam", "Malam ini", "Tadi malam", "Lusa malam"],
+          correct: 1
+        },
+        {
+          question: "しゅくだい berarti?",
+          options: ["Catatan", "Pekerjaan rumah", "Kuis", "Jurnal"],
+          correct: 1
+        },
+        {
+          question: "まいあさ berarti?",
+          options: ["Setiap pagi", "Setiap malam", "Besok pagi", "Kemarin pagi"],
+          correct: 0
+        },
+        {
+          question: "まいにち berarti?",
+          options: ["Setiap hari", "Beberapa hari", "Besok", "Kemarin"],
+          correct: 0
+        },
+        {
+          question: "まいばん berarti?",
+          options: ["Setiap siang", "Setiap malam", "Setiap pagi", "Setiap minggu"],
+          correct: 1
+        },
+        {
+          question: "やすみは なんようびですか？ Artinya?",
+          options: ["Libur jam berapa?", "Hari apa liburnya?", "Tanggal berapa liburnya?", "Besok libur?"],
+          correct: 1
+        },
+        {
+          question: "Apa arti フォーク?",
+          options: ["Sendok", "Garpu", "Piring", "Pisau"],
+          correct: 1
+        },
+        {
+          question: "ナイフ berarti?",
+          options: ["Pisau", "Garpu", "Sendok", "Piring"],
+          correct: 0
+        },
+        {
+          question: "スプーン berarti?",
+          options: ["Sendok", "Garpu", "Piring", "Cangkir"],
+          correct: 0
+        },
+        {
+          question: "Apa arti いま なんじですか？",
+          options: ["Sekarang jam berapa?", "Besok jam berapa?", "Kapan berangkat?", "Jam berapa pulang?"],
+          correct: 0
+        },
+        {
+          question: "かいぎは 3じからです。 Artinya?",
+          options: ["Rapat selesai jam 3", "Rapat mulai jam 3", "Rapat jam 3 lewat", "Rapat jam 3 malam"],
+          correct: 1
+        },
+        {
+          question: "にちようびは やすみです。 Artinya?",
+          options: ["Libur hari Sabtu", "Libur hari Minggu", "Tidak libur", "Bekerja di hari Minggu"],
+          correct: 1
+        }
+      ],
 
-const qIdx = document.getElementById('qIdx');
-const qTotal = document.getElementById('qTotal');
-const questionText = document.getElementById('questionText');
-const optionsWrap = document.getElementById('optionsWrap');
-const scoreEl = document.getElementById('score');
-const progressBar = document.getElementById('progressBar');
-const timerEl = document.getElementById('timer');
-const feedback = document.getElementById('feedback');
-const nextBtn = document.getElementById('nextBtn');
-const endBtn = document.getElementById('endBtn');
-const finalScore = document.getElementById('finalScore');
-const summary = document.getElementById('summary');
-const leaderList = document.getElementById('leaderList');
+      bab5: [
+        {
+          question: "いきます berarti?",
+          options: ["Pergi", "Datang", "Pulang", "Tiba"],
+          correct: 0
+        },
+        {
+          question: "きます berarti?",
+          options: ["Pergi", "Datang", "Tidur", "Berangkat"],
+          correct: 1
+        },
+        {
+          question: "かえります berarti?",
+          options: ["Pergi", "Datang", "Pulang", "Bekerja"],
+          correct: 2
+        },
+        {
+          question: "Apa arti がっこう?",
+          options: ["Kantor", "Sekolah", "Bandara", "Stasiun"],
+          correct: 1
+        },
+        {
+          question: "スーパー berarti?",
+          options: ["Supermarket", "Rumah sakit", "Kantor", "Restoran"],
+          correct: 0
+        },
+        {
+          question: "えき berarti?",
+          options: ["Bandara", "Pelabuhan", "Stasiun", "Sekolah"],
+          correct: 2
+        },
+        {
+          question: "ひこうき adalah?",
+          options: ["Kapal", "Kereta", "Pesawat", "Helikopter"],
+          correct: 2
+        },
+        {
+          question: "ふね berarti?",
+          options: ["Kereta", "Kapal", "Motor", "Sepeda"],
+          correct: 1
+        },
+        {
+          question: "でんしゃ berarti?",
+          options: ["Kereta listrik", "Pesawat", "Kapal", "Sepeda"],
+          correct: 0
+        },
+        {
+          question: "しんかんせん adalah?",
+          options: ["Kereta cepat", "Kapal besar", "Pesawat tempur", "Truk besar"],
+          correct: 0
+        },
+        {
+          question: "ちかてつ berarti?",
+          options: ["Kereta cepat", "Kereta bawah tanah", "Kapal laut", "Bus umum"],
+          correct: 1
+        },
+        {
+          question: "バス berarti?",
+          options: ["Kereta", "Bus", "Taxi", "Sepeda"],
+          correct: 1
+        },
+        {
+          question: "タクシー berarti?",
+          options: ["Sepeda", "Kapal", "Taksi", "Kereta"],
+          correct: 2
+        },
+        {
+          question: "あるいて berarti?",
+          options: ["Dengan sepeda", "Dengan mobil", "Dengan berjalan kaki", "Dengan kereta"],
+          correct: 2
+        },
+        {
+          question: "ともだち berarti?",
+          options: ["Guru", "Teman", "Keluarga", "Orang asing"],
+          correct: 1
+        },
+        {
+          question: "かれ berarti?",
+          options: ["Dia (laki-laki)", "Dia (perempuan)", "Teman", "Kamu"],
+          correct: 0
+        },
+        {
+          question: "かのじょ berarti?",
+          options: ["Dia (laki-laki)", "Dia (perempuan)", "Mereka", "Kamu"],
+          correct: 1
+        },
+        {
+          question: "ひとりで berarti?",
+          options: ["Bersama teman", "Berdua", "Sendirian", "Berlima"],
+          correct: 2
+        },
+        {
+          question: "せんしゅう berarti?",
+          options: ["Minggu depan", "Minggu lalu", "Minggu ini", "Dua minggu lalu"],
+          correct: 1
+        },
+        {
+          question: "こんしゅう berarti?",
+          options: ["Minggu lalu", "Minggu ini", "Minggu depan", "Minggu depan lagi"],
+          correct: 1
+        },
+        {
+          question: "らいしゅう berarti?",
+          options: ["Minggu depan", "Minggu ini", "Minggu lalu", "Kemarin"],
+          correct: 0
+        },
+        {
+          question: "さらいしゅう berarti?",
+          options: ["Dua minggu depan", "Dua minggu lalu", "Minggu ini", "Minggu depan"],
+          correct: 0
+        },
+        {
+          question: "まいしゅう berarti?",
+          options: ["Setiap minggu", "Beberapa minggu", "Dua minggu", "Awal minggu"],
+          correct: 0
+        },
+        {
+          question: "ついたち berarti?",
+          options: ["Tanggal 2", "Tanggal 3", "Tanggal 1", "Tanggal 5"],
+          correct: 2
+        },
+        {
+          question: "ふつか berarti?",
+          options: ["Tanggal 2", "Tanggal 3", "Tanggal 4", "Tanggal 5"],
+          correct: 0
+        },
+        {
+          question: "みっか berarti?",
+          options: ["Tanggal 3", "Tanggal 1", "Tanggal 4", "Tanggal 5"],
+          correct: 0
+        },
+        {
+          question: "よっか berarti?",
+          options: ["Tanggal 3", "Tanggal 4", "Tanggal 6", "Tanggal 8"],
+          correct: 1
+        },
+        {
+          question: "いつか berarti?",
+          options: ["Tanggal 1", "Tanggal 2", "Tanggal 3", "Tanggal 5"],
+          correct: 3
+        },
+        {
+          question: "むいか berarti?",
+          options: ["Tanggal 6", "Tanggal 4", "Tanggal 1", "Tanggal 9"],
+          correct: 0
+        },
+        {
+          question: "なのか berarti?",
+          options: ["Tanggal 5", "Tanggal 7", "Tanggal 8", "Tanggal 9"],
+          correct: 1
+        },
+        {
+          question: "ようか berarti?",
+          options: ["Tanggal 8", "Tanggal 4", "Tanggal 3", "Tanggal 9"],
+          correct: 0
+        },
+        {
+          question: "ここのか berarti?",
+          options: ["Tanggal 8", "Tanggal 9", "Tanggal 10", "Tanggal 6"],
+          correct: 1
+        },
+        {
+          question: "とおか berarti?",
+          options: ["Tanggal 8", "Tanggal 9", "Tanggal 10", "Tanggal 11"],
+          correct: 2
+        },
+        {
+          question: "じゅうよっか berarti?",
+          options: ["Tanggal 14", "Tanggal 4", "Tanggal 24", "Tanggal 15"],
+          correct: 0
+        },
+        {
+          question: "はつか berarti?",
+          options: ["Tanggal 10", "Tanggal 20", "Tanggal 2", "Tanggal 21"],
+          correct: 1
+        },
+        {
+          question: "にじゅうよっか berarti?",
+          options: ["Tanggal 24", "Tanggal 14", "Tanggal 4", "Tanggal 20"],
+          correct: 0
+        },
+        {
+          question: "なんにち berarti?",
+          options: ["Tanggal berapa?", "Hari apa?", "Jam berapa?", "Bulan apa?"],
+          correct: 0
+        },
+        {
+          question: "なんがつ berarti?",
+          options: ["Jam berapa?", "Tanggal berapa?", "Bulan berapa?", "Hari apa?"],
+          correct: 2
+        },
+        {
+          question: "ともだちと いきます。 Artinya?",
+          options: ["Pergi dengan teman", "Pergi sendirian", "Teman datang", "Teman pergi"],
+          correct: 0
+        },
+        {
+          question: "なにで いきますか？ Artinya?",
+          options: ["Pergi kapan?", "Pergi naik apa?", "Pergi ke mana?", "Pergi dengan siapa?"],
+          correct: 1
+        },
+        {
+          question: "バスで いきます。 Artinya?",
+          options: ["Pergi dengan bus", "Pergi ke bus", "Pergi naik motor", "Pergi dari bus"],
+          correct: 0
+        },
+        {
+          question: "どこへ いきますか？ Artinya?",
+          options: ["Mau pergi naik apa?", "Mau pergi ke mana?", "Mau pergi dengan siapa?", "Mau pergi jam berapa?"],
+          correct: 1
+        },
+        {
+          question: "にほんへ いきます。 Artinya?",
+          options: ["Pergi ke Jepang", "Datang dari Jepang", "Pulang dari Jepang", "Bekerja di Jepang"],
+          correct: 0
+        },
+        {
+          question: "かれは ひとりで きます。 Artinya?",
+          options: ["Dia datang dengan teman", "Dia datang sendirian", "Dia pergi sendirian", "Dia pulang dengan teman"],
+          correct: 1
+        },
+        {
+          question: "せんしゅう にほんへ いきました。 Artinya?",
+          options: ["Minggu lalu pergi ke Jepang", "Minggu depan pergi ke Jepang", "Kemarin pulang dari Jepang", "Lusa pergi ke Jepang"],
+          correct: 0
+        },
+        {
+          question: "らいしゅう かえります。 Artinya?",
+          options: ["Minggu lalu pulang", "Minggu depan pulang", "Minggu ini pulang", "Kemarin pulang"],
+          correct: 1
+        },
+        {
+          question: "こんしゅう は べんきょうします。 Artinya?",
+          options: ["Minggu ini belajar", "Minggu depan belajar", "Kemarin belajar", "Hari ini belajar"],
+          correct: 0
+        },
+        {
+          question: "あるいて いきます。 Artinya?",
+          options: ["Pergi dengan berjalan kaki", "Pergi naik bus", "Pergi naik kereta", "Pergi naik pesawat"],
+          correct: 0
+        },
+        {
+          question: "かのじょと スーパーへ いきます。 Artinya?",
+          options: ["Pergi ke supermarket dengan dia (perempuan)", "Dia pergi dengan saya", "Dia pergi sendirian", "Pergi ke sekolah"],
+          correct: 0
+        }
+      ],
 
-const numQuestions = document.getElementById('numQuestions');
-const timerSec = document.getElementById('timerSec');
-const enableTimer = document.getElementById('enableTimer');
-const shuffleQ = document.getElementById('shuffleQ');
-const soundOn = document.getElementById('soundOn');
+      bab6: [
+        {
+          question: "Apa bahasa Jepang dari 'makan'?",
+          options: ["のみます", "みます", "たべます", "よみます"],
+          correct: 2
+        },
+        {
+          question: "Apa arti のみます?",
+          options: ["Makan", "Minum", "Melihat", "Menulis"],
+          correct: 1
+        },
+        {
+          question: "Bahasa Jepang dari 'merokok' adalah?",
+          options: ["すいます", "たべます", "かいます", "します"],
+          correct: 0
+        },
+        {
+          question: "Apa arti みます?",
+          options: ["Melihat/menonton", "Mendengar", "Membeli", "Berjalan"],
+          correct: 0
+        },
+        {
+          question: "Apa bahasa Jepang dari 'mendengar'?",
+          options: ["みます", "ききます", "よみます", "すいます"],
+          correct: 1
+        },
+        {
+          question: "よみます berarti?",
+          options: ["Menulis", "Membaca", "Membeli", "Memotret"],
+          correct: 1
+        },
+        {
+          question: "Apa bahasa Jepang dari 'menulis'?",
+          options: ["かきます", "ききます", "みます", "とります"],
+          correct: 0
+        },
+        {
+          question: "かいます berarti?",
+          options: ["Membeli", "Membaca", "Memotret", "Berolahraga"],
+          correct: 0
+        },
+        {
+          question: "Apa arti とります?",
+          options: ["Memanggil", "Memotret/mengambil foto", "Berlari", "Membeli"],
+          correct: 1
+        },
+        {
+          question: "します berarti?",
+          options: ["Berlari", "Melakukan", "Mengambil", "Memasak"],
+          correct: 1
+        },
+        {
+          question: "あいます berarti?",
+          options: ["Bertemu", "Membeli", "Menulis", "Melihat"],
+          correct: 0
+        },
+        {
+          question: "Apa bahasa Jepang dari 'sarapan'?",
+          options: ["ばんごはん", "ひるごはん", "あさごはん", "ごはん"],
+          correct: 2
+        },
+        {
+          question: "ひるごはん berarti?",
+          options: ["Makan pagi", "Makan siang", "Makan malam", "Camilan"],
+          correct: 1
+        },
+        {
+          question: "ばんごはん berarti?",
+          options: ["Sarapan", "Makan siang", "Makan malam", "Minum air"],
+          correct: 2
+        },
+        {
+          question: "Apa bahasa Jepang dari 'air'?",
+          options: ["みず", "おちゃ", "ビール", "ぎゅうにゅう"],
+          correct: 0
+        },
+        {
+          question: "おちゃ berarti?",
+          options: ["Teh", "Air", "Susu", "Kopi"],
+          correct: 0
+        },
+        {
+          question: "ぎゅうにゅう adalah?",
+          options: ["Air", "Kopi", "Susu", "Teh"],
+          correct: 2
+        },
+        {
+          question: "くだもの berarti?",
+          options: ["Sayur", "Buah", "Daging", "Roti"],
+          correct: 1
+        },
+        {
+          question: "Apa bahasa Jepang dari 'sayur'?",
+          options: ["やさい", "くだもの", "にく", "パン"],
+          correct: 0
+        },
+        {
+          question: "にく adalah?",
+          options: ["Buah", "Daging", "Sayur", "Ikan"],
+          correct: 1
+        },
+        {
+          question: "さかな berarti?",
+          options: ["Daging", "Ayam", "Ikan", "Lauk"],
+          correct: 2
+        },
+        {
+          question: "パン berarti?",
+          options: ["Roti", "Kue", "Daging", "Bubur"],
+          correct: 0
+        },
+        {
+          question: "Apa arti しゃしん?",
+          options: ["Film", "Foto", "Buku", "Majalah"],
+          correct: 1
+        },
+        {
+          question: "Bahasa Jepang dari 'film (movie)' adalah?",
+          options: ["しゃしん", "てがみ", "えいが", "レポート"],
+          correct: 2
+        },
+        {
+          question: "てがみ berarti?",
+          options: ["Surat", "Foto", "Majalah", "Laporan"],
+          correct: 0
+        },
+        {
+          question: "レポート berarti?",
+          options: ["Tugas/laporan", "Surat", "Novel", "Gambar"],
+          correct: 0
+        },
+        {
+          question: "Apa bahasa Jepang dari 'bahasa Jepang'?",
+          options: ["にほん", "にほんじん", "にほんご", "えいご"],
+          correct: 2
+        },
+        {
+          question: "えいご berarti?",
+          options: ["Bahasa Inggris", "Bahasa Jepang", "Bahasa Cina", "Tulisan Kanji"],
+          correct: 0
+        },
+        {
+          question: "ともだち berarti?",
+          options: ["Keluarga", "Guru", "Teman", "Tetangga"],
+          correct: 2
+        },
+        {
+          question: "Apa arti いっしょに?",
+          options: ["Sementara", "Sendirian", "Bersama-sama", "Kadang-kadang"],
+          correct: 2
+        },
+        {
+          question: "ちょっと berarti?",
+          options: ["Sebentar/agak", "Selalu", "Sering", "Sepenuhnya"],
+          correct: 0
+        },
+        {
+          question: "いつも berarti?",
+          options: ["Kadang-kadang", "Jarang", "Selalu", "Tidak pernah"],
+          correct: 2
+        },
+        {
+          question: "ときどき berarti?",
+          options: ["Sering", "Kadang-kadang", "Jarang", "Selalu"],
+          correct: 1
+        },
+        {
+          question: "それから berarti?",
+          options: ["Dan kemudian", "Tetapi", "Walaupun", "Karena itu"],
+          correct: 0
+        },
+        {
+          question: "Apa bahasa Jepang dari 'membaca buku'?",
+          options: ["ほんをよみます", "ほんをみます", "ほんをかきます", "ほんをします"],
+          correct: 0
+        },
+        {
+          question: "Apa arti おさけ?",
+          options: ["Susu", "Air panas", "Minuman alkohol", "Minuman dingin"],
+          correct: 2
+        },
+        {
+          question: "ビール berarti?",
+          options: ["Susu", "Bir", "Kopi", "Teh"],
+          correct: 1
+        },
+        {
+          question: "Apa bahasa Jepang dari 'minum air'?",
+          options: ["おちゃをのみます", "みずをのみます", "ぎゅうにゅうをのみます", "さかなをのみます"],
+          correct: 1
+        },
+        {
+          question: "Apa arti たまご?",
+          options: ["Daging", "Ikan", "Telur", "Roti"],
+          correct: 2
+        },
+        {
+          question: "やさいをたべます artinya?",
+          options: ["Makan buah", "Makan sayur", "Makan daging", "Makan roti"],
+          correct: 1
+        },
+        {
+          question: "くだものをかいます berarti?",
+          options: ["Membeli buah", "Membeli sayur", "Membeli daging", "Membeli susu"],
+          correct: 0
+        },
+        {
+          question: "Apa arti にほんごをべんきょうします?",
+          options: ["Belajar Jepang", "Belajar bahasa Jepang", "Mengajar bahasa Jepang", "Bertemu orang Jepang"],
+          correct: 1
+        },
+        {
+          question: "えいがをみます berarti?",
+          options: ["Menonton film", "Melihat foto", "Makan popcorn", "Menonton TV"],
+          correct: 0
+        },
+        {
+          question: "Apa bahasa Jepang dari 'membeli roti'?",
+          options: ["パンをみます", "パンをよみます", "パンをかいます", "パンをとります"],
+          correct: 2
+        },
+        {
+          question: "にくをたべます berarti?",
+          options: ["Makan daging", "Makan buah", "Makan roti", "Makan sayur"],
+          correct: 0
+        },
+        {
+          question: "しゃしんをとります berarti?",
+          options: ["Menggambar foto", "Membeli foto", "Mengambil foto", "Menyimpan foto"],
+          correct: 2
+        },
+        {
+          question: "Apa bahasa Jepang dari 'minum kopi'?",
+          options: ["コーヒーをのみます", "コーヒーをかきます", "コーヒーをたべます", "コーヒーをします"],
+          correct: 0
+        },
+        {
+          question: "ときどき テレビをみます。 Artinya?",
+          options: ["Selalu menonton TV", "Tidak pernah menonton TV", "Jarang menonton TV", "Kadang-kadang menonton TV"],
+          correct: 3
+        },
+        {
+          question: "いつも あさごはんを たべます。 Artinya?",
+          options: ["Selalu sarapan", "Jarang sarapan", "Tidak sarapan", "Kadang sarapan"],
+          correct: 0
+        }
+      ],
 
-const retryBtn = document.getElementById('retryBtn');
-const toStartBtn = document.getElementById('toStartBtn');
+      bab7: [
+        {
+          question: "Apa bahasa Jepang dari 'memberi'?",
+          options: ["もらいます", "あげます", "かします", "おしえます"],
+          correct: 1
+        },
+        {
+          question: "Apa arti もらいます?",
+          options: ["Memberi", "Menerima", "Meminjamkan", "Mengajar"],
+          correct: 1
+        },
+        {
+          question: "かします berarti?",
+          options: ["Meminjam", "Meminjamkan", "Memberi", "Membeli"],
+          correct: 1
+        },
+        {
+          question: "かります berarti?",
+          options: ["Meminjam", "Meminjamkan", "Menerima hadiah", "Memberi"],
+          correct: 0
+        },
+        {
+          question: "おしえます berarti?",
+          options: ["Belajar", "Mengajar/menunjukkan", "Menanyakan", "Memberikan"],
+          correct: 1
+        },
+        {
+          question: "ならいます berarti?",
+          options: ["Belajar dari guru", "Mengajar", "Menerjemahkan", "Meminjam"],
+          correct: 0
+        },
+        {
+          question: "Apa bahasa Jepang dari 'surat'?",
+          options: ["しゃしん", "てがみ", "レポート", "プレゼント"],
+          correct: 1
+        },
+        {
+          question: "レポート berarti?",
+          options: ["Laporan/tugas", "Surat", "Hadiah", "Majalah"],
+          correct: 0
+        },
+        {
+          question: "プレゼント berarti?",
+          options: ["Foto", "Hadiah", "Surat", "Tas"],
+          correct: 1
+        },
+        {
+          question: "Apa bahasa Jepang dari 'uang'?",
+          options: ["おかね", "プレゼント", "ホッチキス", "けしゴム"],
+          correct: 0
+        },
+        {
+          question: "パンチ adalah?",
+          options: ["Stapler", "Pembolong kertas", "Gunting", "Penghapus"],
+          correct: 1
+        },
+        {
+          question: "ホッチキス berarti?",
+          options: ["Pembolong kertas", "Stapler", "Gunting", "Penghapus"],
+          correct: 1
+        },
+        {
+          question: "けしゴム berarti?",
+          options: ["Gunting", "Penghapus", "Pulpen", "Buku"],
+          correct: 1
+        },
+        {
+          question: "はさみ berarti?",
+          options: ["Gunting", "Pisau", "Spoon", "Penjepit"],
+          correct: 0
+        },
+        {
+          question: "スプーン berarti?",
+          options: ["Garpu", "Sendok", "Pisau", "Piring"],
+          correct: 1
+        },
+        {
+          question: "フォーク berarti?",
+          options: ["Sendok", "Garpu", "Pisau", "Sumpit"],
+          correct: 1
+        },
+        {
+          question: "ナイフ berarti?",
+          options: ["Pisau", "Garpu", "Sendok", "Sumpit"],
+          correct: 0
+        },
+        {
+          question: "Apa arti あげます?",
+          options: ["Memberi", "Menerima", "Meminjam", "Mencari"],
+          correct: 0
+        },
+        {
+          question: "Apa bahasa Jepang dari 'mengajar alamat'?",
+          options: ["じゅうしょをあげます", "じゅうしょをききます", "じゅうしょをおしえます", "じゅうしょをかります"],
+          correct: 2
+        },
+        {
+          question: "Apa arti メール?",
+          options: ["Hadiah", "Surat", "Email", "Laporan"],
+          correct: 2
+        },
+        {
+          question: "Apa arti メロディー?",
+          options: ["Melodi/lagu nada", "Hadiah", "Email", "Kartu"],
+          correct: 0
+        },
+        {
+          question: "おとうさん berarti?",
+          options: ["Ayah (orang lain)", "Ayah saya", "Paman", "Kakek"],
+          correct: 0
+        },
+        {
+          question: "おかあさん berarti?",
+          options: ["Ibu saya", "Ibu (orang lain)", "Anak perempuan", "Nenek"],
+          correct: 1
+        },
+        {
+          question: "おにいさん berarti?",
+          options: ["Adik laki-laki", "Kakak laki-laki (orang lain)", "Kakek", "Teman"],
+          correct: 1
+        },
+        {
+          question: "おねえさん berarti?",
+          options: ["Adik perempuan", "Kakak perempuan (orang lain)", "Bibi", "Ibu"],
+          correct: 1
+        },
+        {
+          question: "Apa arti おとうと?",
+          options: ["Kakak laki-laki", "Adik laki-laki", "Kakak perempuan", "Anak laki-laki"],
+          correct: 1
+        },
+        {
+          question: "いもうと berarti?",
+          options: ["Adik perempuan", "Kakak perempuan", "Anak perempuan", "Cucu"],
+          correct: 0
+        },
+        {
+          question: "Apa bahasa Jepang dari 'mengirim email'?",
+          options: ["メールをおくります", "メールをかります", "メールをあげます", "メールをします"],
+          correct: 0
+        },
+        {
+          question: "Apa arti すてきですね?",
+          options: ["Bagus sekali, ya?", "Berapa harganya?", "Apa ini?", "Di mana?"],
+          correct: 0
+        },
+        {
+          question: "Apa arti どうぞ?",
+          options: ["Terima kasih", "Silakan", "Tolong bantu", "Itu bagus"],
+          correct: 1
+        },
+        {
+          question: "Apa arti ありがとう?",
+          options: ["Permisi", "Terima kasih", "Maaf", "Silakan"],
+          correct: 1
+        },
+        {
+          question: "ともだちに プレゼントを ___。",
+          options: ["もらいます", "あげます", "かります", "おしえます"],
+          correct: 1
+        },
+        {
+          question: "せんせいに ほんを かりました。 Artinya?",
+          options: ["Saya meminjam buku dari guru", "Saya memberikan buku kepada guru", "Guru meminjam buku saya", "Saya membeli buku untuk guru"],
+          correct: 0
+        },
+        {
+          question: "Apa arti 'memberi hadiah'?",
+          options: ["プレゼントをもらいます", "プレゼントをあげます", "プレゼントをします", "プレゼントをかります"],
+          correct: 1
+        },
+        {
+          question: "プレゼントをもらいました。 Artinya?",
+          options: ["Saya memberi hadiah", "Saya menerima hadiah", "Saya membeli hadiah", "Saya membuka hadiah"],
+          correct: 1
+        },
+        {
+          question: "Apa bahasa Jepang dari 'menghapus dengan penghapus'?",
+          options: ["けしゴムをかきます", "けしゴムをします", "けしゴムでけします", "けしゴムをあげます"],
+          correct: 2
+        },
+        {
+          question: "つくえのうえに フォークがあります。 Artinya?",
+          options: ["Ada garpu di atas meja", "Garpu saya hilang", "Garpu ada di dalam tas", "Garpu diberikan kepada saya"],
+          correct: 0
+        },
+        {
+          question: "Apa bahasa Jepang dari 'meminjam gunting'?",
+          options: ["はさみをかります", "はさみをかします", "はさみをあげます", "はさみをとります"],
+          correct: 0
+        },
+        {
+          question: "Apa arti はさみをかします?",
+          options: ["Meminjam gunting", "Meminjamkan gunting", "Membeli gunting", "Mengambil gunting"],
+          correct: 1
+        },
+        {
+          question: "Apa bahasa Jepang dari 'mengajar nomor telepon'?",
+          options: ["でんわばんごうをおしえます", "でんわばんごうをもらいます", "でんわばんごうをします", "でんわばんごうをあげます"],
+          correct: 0
+        },
+        {
+          question: "Apa arti ノートをかります?",
+          options: ["Meminjam buku catatan", "Meminjamkan catatan", "Membeli catatan", "Menemukan catatan"],
+          correct: 0
+        },
+        {
+          question: "ともだちに おかねを ___。",
+          options: ["かします", "かります", "あげます", "もらいます"],
+          correct: 0
+        },
+        {
+          question: "Apa bahasa Jepang dari 'menulis surat'?",
+          options: ["てがみをみます", "てがみをかきます", "てがみをします", "てがみをとります"],
+          correct: 1
+        },
+        {
+          question: "Apa arti 'Saya menerima uang dari teman'?",
+          options: ["ともだちに おかねをあげました", "ともだちに おかねをかりました", "ともだちに おかねをもらいました", "ともだちに おかねをおしえました"],
+          correct: 2
+        },
+        {
+          question: "メールを おくりました。 Artinya?",
+          options: ["Saya menghapus email", "Saya mengirim email", "Saya menerima email", "Saya melihat email"],
+          correct: 1
+        },
+        {
+          question: "Apa bahasa Jepang dari 'menerima buku'?",
+          options: ["ほんをかります", "ほんをもらいます", "ほんをあげます", "ほんをおしえます"],
+          correct: 1
+        },
+        {
+          question: "おとうとに ナイフを あげます。 Artinya?",
+          options: ["Memberi pisau kepada adik laki-laki", "Menerima pisau dari adik laki-laki", "Mencari pisau adik", "Meminjam pisau adik"],
+          correct: 0
+        }
+      ],
 
-function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+      bab8: [
+        {
+          question: "Apa bahasa Jepang dari 'cantik/bersih'?",
+          options: ["きれい", "しずか", "べんり", "ふるい"],
+          correct: 0
+        },
+        {
+          question: "Apa arti しずか？",
+          options: ["Bersih", "Tenang", "Tinggi", "Bagus"],
+          correct: 1
+        },
+        {
+          question: "ゆうめい berarti?",
+          options: ["Terkenal", "Murah", "Berbahaya", "Bosan"],
+          correct: 0
+        },
+        {
+          question: "Apa arti しんせつ？",
+          options: ["Baik hati", "Lapar", "Ramai", "Cepat"],
+          correct: 0
+        },
+        {
+          question: "Apa bahasa Jepang dari 'sehat/enerjik'?",
+          options: ["たかい", "げんき", "あたらしい", "あつい"],
+          correct: 1
+        },
+        {
+          question: "ひま berarti?",
+          options: ["Sibuk", "Longgar/luang", "Mahal", "Bising"],
+          correct: 1
+        },
+        {
+          question: "べんり berarti?",
+          options: ["Tidak enak", "Tidak nyaman", "Praktis/berguna", "Mahal"],
+          correct: 2
+        },
+        {
+          question: "Apa arti すてき？",
+          options: ["Norak", "Buruk", "Indah/bagus sekali", "Lemah"],
+          correct: 2
+        },
+        {
+          question: "おおきい berarti?",
+          options: ["Kecil", "Baru", "Besar", "Panjang"],
+          correct: 2
+        },
+        {
+          question: "ちいさい berarti?",
+          options: ["Kecil", "Pahit", "Panas", "Jelek"],
+          correct: 0
+        },
+        {
+          question: "Apa bahasa Jepang dari 'baru'?",
+          options: ["ふるい", "あたらしい", "あつい", "やすい"],
+          correct: 1
+        },
+        {
+          question: "ふるい berarti?",
+          options: ["Tua/ lama", "Muda", "Pendek", "Kecil"],
+          correct: 0
+        },
+        {
+          question: "いい berarti?",
+          options: ["Buruk", "Bagus", "Tinggi", "Tenang"],
+          correct: 1
+        },
+        {
+          question: "Apa arti わるい？",
+          options: ["Bersih", "Buruk", "Ramah", "Jauh"],
+          correct: 1
+        },
+        {
+          question: "さむい berarti?",
+          options: ["Panas", "Dingin (cuaca)", "Murah", "Cepat"],
+          correct: 1
+        },
+        {
+          question: "あつい berarti?",
+          options: ["Panas (cuaca)", "Dingin (benda)", "Baru", "Kuat"],
+          correct: 0
+        },
+        {
+          question: "つめたい berarti?",
+          options: ["Dingin (benda)", "Panas", "Murah", "Mahal"],
+          correct: 0
+        },
+        {
+          question: "やさしい berarti?",
+          options: ["Mahal", "Gampang/ramah", "Sulit", "Lambat"],
+          correct: 1
+        },
+        {
+          question: "むずかしい berarti?",
+          options: ["Mudah", "Sulit", "Mahal", "Panas"],
+          correct: 1
+        },
+        {
+          question: "たかい berarti?",
+          options: ["Murah", "Pendek", "Mahal/tinggi", "Dingin"],
+          correct: 2
+        },
+        {
+          question: "やすい berarti?",
+          options: ["Murah", "Mahal", "Tinggi", "Tua"],
+          correct: 0
+        },
+        {
+          question: "Apa arti おもしろい？",
+          options: ["Lucu/Menarik", "Aneh", "Mahal", "Membosankan"],
+          correct: 0
+        },
+        {
+          question: "たのしい berarti?",
+          options: ["Menyenangkan", "Menakutkan", "Membosankan", "Sulit"],
+          correct: 0
+        },
+        {
+          question: "Apa arti ところ？",
+          options: ["Rumah", "Tempat", "Jalan", "Waktu"],
+          correct: 1
+        },
+        {
+          question: "へや berarti?",
+          options: ["Kamar", "Rumah", "Kantor", "Jalan"],
+          correct: 0
+        },
+        {
+          question: "Apa arti まち？",
+          options: ["Kota", "Rumah", "Teman", "Jalan"],
+          correct: 0
+        },
+        {
+          question: "たべもの berarti?",
+          options: ["Minuman", "Makanan", "Rasa", "Bumbu"],
+          correct: 1
+        },
+        {
+          question: "くるま berarti?",
+          options: ["Sepeda", "Kereta", "Mobil", "Kapal"],
+          correct: 2
+        },
+        {
+          question: "にほんのたべものは おいしいです。 Artinya?",
+          options: ["Makanan Jepang tidak enak", "Makanan Jepang enak", "Minuman Jepang mahal", "Masakan Jepang sulit"],
+          correct: 1
+        },
+        {
+          question: "このへやは きれいです。 Artinya?",
+          options: ["Kamar ini kotor", "Kamar ini indah/bersih", "Kamar ini besar", "Kamar ini panas"],
+          correct: 1
+        },
+        {
+          question: "Apa bahasa Jepang dari 'kota ini tenang'?",
+          options: ["このまちはしずかです", "このまちはにぎやかです", "このまちはすてきです", "このまちはさむいです"],
+          correct: 0
+        },
+        {
+          question: "このくるまは たかいです。 Artinya?",
+          options: ["Mobil ini murah", "Mobil ini mahal", "Mobil ini kecil", "Mobil ini jelek"],
+          correct: 1
+        },
+        {
+          question: "Apa arti べんりなまち？",
+          options: ["Kota yang indah", "Kota yang praktis/nyaman", "Kota yang mahal", "Kota yang buruk"],
+          correct: 1
+        },
+        {
+          question: "しんせつなひと berarti?",
+          options: ["Orang jahat", "Orang baik hati", "Orang kaya", "Orang kuat"],
+          correct: 1
+        },
+        {
+          question: "やさしいほん berarti?",
+          options: ["Buku sulit", "Buku mudah", "Buku mahal", "Buku panas"],
+          correct: 1
+        },
+        {
+          question: "むずかしいしけん berarti?",
+          options: ["Ujian mudah", "Ujian sulit", "Ujian mahal", "Ujian cepat"],
+          correct: 1
+        },
+        {
+          question: "Apa arti さむいへや？",
+          options: ["Kamar panas", "Kamar baru", "Kamar dingin", "Kamar luas"],
+          correct: 2
+        },
+        {
+          question: "ちいさいまち berarti?",
+          options: ["Kota besar", "Kota kecil", "Kota mahal", "Kota panas"],
+          correct: 1
+        },
+        {
+          question: "おもしろいえいが berarti?",
+          options: ["Film membosankan", "Film lama", "Film menarik", "Film sedih"],
+          correct: 2
+        },
+        {
+          question: "Apa arti すてきなへや？",
+          options: ["Kamar indah/bagus sekali", "Kamar kecil", "Kamar panas", "Kamar murah"],
+          correct: 0
+        },
+        {
+          question: "あたらしいくるま berarti?",
+          options: ["Mobil lama", "Mobil baru", "Mobil mahal", "Mobil jelek"],
+          correct: 1
+        },
+        {
+          question: "ふるいたべもの berarti?",
+          options: ["Makanan baru", "Makanan lama/basi", "Makanan panas", "Makanan murah"],
+          correct: 1
+        },
+        {
+          question: "Apa arti げんきなひと？",
+          options: ["Orang sakit", "Orang lemah", "Orang sehat/enerjik", "Orang tua"],
+          correct: 2
+        },
+        {
+          question: "にぎやか berarti?",
+          options: ["Ribut/ramai", "Tenang", "Tidak enak", "Lama"],
+          correct: 0
+        },
+        {
+          question: "テストは むずかしいです。 Artinya?",
+          options: ["Tesnya sulit", "Tesnya mudah", "Tesnya murah", "Tesnya cepat"],
+          correct: 0
+        },
+        {
+          question: "Apa bahasa Jepang dari 'film itu menarik'?",
+          options: ["そのえいがはたのしいです", "そのえいがはおもしろいです", "そのえいがはしずかです", "そのえいがはやすいです"],
+          correct: 1
+        }
+      ],
 
-// START GAME
-function startGame(){
-  config.total = parseInt(numQuestions.value);
-  config.timerOn = enableTimer.checked;
-  config.timerSec = parseInt(timerSec.value);
-  config.shuffle = shuffleQ.checked;
-  config.sound = soundOn.checked;
+      bab9: [
+        {
+          question: "Apa bahasa Jepang dari 'mengerti'?",
+          options: ["あります", "できます", "わかります", "きらいです"],
+          correct: 2
+        },
+        {
+          question: "Apa arti できます？",
+          options: ["Ada", "Mengerti", "Bisa/dapat", "Tidak suka"],
+          correct: 2
+        },
+        {
+          question: "あります berarti?",
+          options: ["Ada (benda mati)", "Ada (makhluk hidup)", "Tidak ada", "Mengerti"],
+          correct: 0
+        },
+        {
+          question: "Apa arti すきです？",
+          options: ["Benci", "Suka", "Tidak bisa", "Hebat"],
+          correct: 1
+        },
+        {
+          question: "きらいです berarti?",
+          options: ["Hebat", "Pandai", "Benci", "Suka"],
+          correct: 2
+        },
+        {
+          question: "じょうず berarti?",
+          options: ["Pandai/mahir", "Benci", "Tidak mahir", "Tidak suka"],
+          correct: 0
+        },
+        {
+          question: "へた berarti?",
+          options: ["Jago", "Tidak pandai/lemah", "Serius", "Tidak suka"],
+          correct: 1
+        },
+        {
+          question: "Apa bahasa Jepang dari 'minuman'?",
+          options: ["たべもの", "のみもの", "スポーツ", "うた"],
+          correct: 1
+        },
+        {
+          question: "たべもの berarti?",
+          options: ["Makanan", "Minuman", "Olahraga", "Nyanyian"],
+          correct: 0
+        },
+        {
+          question: "スポーツ berarti?",
+          options: ["Musik", "Olahraga", "Makanan", "Pertandingan"],
+          correct: 1
+        },
+        {
+          question: "うた berarti?",
+          options: ["Gambar", "Nyanyian/lagu", "Olahraga", "Film"],
+          correct: 1
+        },
+        {
+          question: "ギター berarti?",
+          options: ["Biola", "Gitar", "Drum", "Piano"],
+          correct: 1
+        },
+        {
+          question: "りょうり berarti?",
+          options: ["Masakan", "Olahraga", "Gitar", "Surat"],
+          correct: 0
+        },
+        {
+          question: "カラオケ berarti?",
+          options: ["Bernyanyi karaoke", "Memasak", "Bermain gitar", "Olahraga"],
+          correct: 0
+        },
+        {
+          question: "え berarti?",
+          options: ["Lukisan/gambar", "Lagu", "Drama", "Film"],
+          correct: 0
+        },
+        {
+          question: "かぶき berarti?",
+          options: ["Drama tradisional Jepang", "Musik tradisional", "Tarian", "Alat musik"],
+          correct: 0
+        },
+        {
+          question: "ローマじ berarti?",
+          options: ["Huruf Jepang", "Huruf Latin/romaji", "Hiragana", "Kanji"],
+          correct: 1
+        },
+        {
+          question: "こまかいおかね berarti?",
+          options: ["Uang besar", "Uang receh", "Uang lama", "Uang asing"],
+          correct: 1
+        },
+        {
+          question: "やくそく berarti?",
+          options: ["Janji", "Pesta", "Cincin", "Pertemuan kecil"],
+          correct: 0
+        },
+        {
+          question: "アルバイト berarti?",
+          options: ["Belajar", "Kerja paruh waktu", "Janji bertemu", "Olahraga"],
+          correct: 1
+        },
+        {
+          question: "Apa arti だめです？",
+          options: ["Tidak boleh", "Boleh", "Terima kasih", "Tidak ada"],
+          correct: 0
+        },
+        {
+          question: "いいですよ berarti?",
+          options: ["Tidak bagus", "Baik, silakan", "Tidak bisa", "Saya tidak suka"],
+          correct: 1
+        },
+        {
+          question: "またこんど berarti?",
+          options: ["Sekarang saja", "Mungkin lain kali", "Besok pasti", "Tidak boleh"],
+          correct: 1
+        },
+        {
+          question: "Apa arti 'Saya suka olahraga'?",
+          options: ["スポーツがきらいです", "スポーツができます", "スポーツがすきです", "スポーツがあります"],
+          correct: 2
+        },
+        {
+          question: "スポーツがきらいです Artinya?",
+          options: ["Tidak suka olahraga", "Suka olahraga", "Bisa olahraga", "Jago olahraga"],
+          correct: 0
+        },
+        {
+          question: "Apa bahasa Jepang dari 'Saya bisa gitar'?",
+          options: ["ギターがすきです", "ギターができます", "ギターがあります", "ギターをします"],
+          correct: 1
+        },
+        {
+          question: "ギターがへたです Artinya?",
+          options: ["Jago gitar", "Tidak pandai bermain gitar", "Tidak punya gitar", "Tidak suka gitar"],
+          correct: 1
+        },
+        {
+          question: "Apa arti うたがすきです？",
+          options: ["Saya suka bernyanyi", "Saya benci bernyanyi", "Saya tidak bisa bernyanyi", "Saya bermain gitar"],
+          correct: 0
+        },
+        {
+          question: "えがじょうずです Artinya?",
+          options: ["Pandai menggambar", "Tidak pandai menggambar", "Tidak suka gambar", "Membeli gambar"],
+          correct: 0
+        },
+        {
+          question: "Apa arti りょうりがへたです？",
+          options: ["Jago memasak", "Tidak pandai memasak", "Suka memasak", "Benci memasak"],
+          correct: 1
+        },
+        {
+          question: "のみものがあります。 Artinya?",
+          options: ["Ada minuman", "Tidak ada minuman", "Minuman enak", "Minuman mahal"],
+          correct: 0
+        },
+        {
+          question: "Apa bahasa Jepang dari 'ada makanan Jepang'?",
+          options: ["にほんのりょうりができます", "にほんのたべものがあります", "にほんのたべものがすきです", "にほんのたべものがきらいです"],
+          correct: 1
+        },
+        {
+          question: "カラオケがすきです Artinya?",
+          options: ["Suka karaoke", "Tidak suka karaoke", "Bisa karaoke", "Pandai karaoke"],
+          correct: 0
+        },
+        {
+          question: "Apa arti 'Saya tidak punya uang receh'?",
+          options: ["こまかいおかねがあります", "こまかいおかねがきらいです", "こまかいおかねがありません", "こまかいおかねがへたです"],
+          correct: 2
+        },
+        {
+          question: "ローマじがわかります Artinya?",
+          options: ["Saya mengerti romaji", "Saya tidak mengerti romaji", "Saya benci romaji", "Saya suka romaji"],
+          correct: 0
+        },
+        {
+          question: "Apa arti やくそくがあります？",
+          options: ["Ada janji/perjanjian", "Tidak ada janji", "Janji dibatalkan", "Suka janji"],
+          correct: 0
+        },
+        {
+          question: "アルバイトをします Artinya?",
+          options: ["Bekerja paruh waktu", "Belajar sambilan", "Mencari kerja penuh waktu", "Tidak bekerja"],
+          correct: 0
+        },
+        {
+          question: "Apa bahasa Jepang dari 'Saya tidak bisa berenang'?",
+          options: ["およぐができます", "およぐがきらいです", "およぐがへたです", "およぐができません"],
+          correct: 3
+        },
+        {
+          question: "にほんごがすこしできます Artinya?",
+          options: ["Bisa bahasa Jepang sedikit", "Tidak bisa bahasa Jepang", "Suka bahasa Jepang", "Benci bahasa Jepang"],
+          correct: 0
+        },
+        {
+          question: "Apa bahasa Jepang dari 'Saya suka gambar'?",
+          options: ["えがすきです", "えができます", "えがあります", "えがきらいです"],
+          correct: 0
+        },
+        {
+          question: "スポーツができますか？",
+          options: ["Apakah suka olahraga?", "Apakah bisa olahraga?", "Apakah membeli olahraga?", "Apakah punya olahraga?"],
+          correct: 1
+        },
+        {
+          question: "Apa arti だめです？",
+          options: ["Tidak boleh", "Silakan", "Boleh sedikit", "Tidak mengerti"],
+          correct: 0
+        },
+        {
+          question: "またこんどおねがいします Artinya?",
+          options: ["Sekarang saja", "Mungkin lain kali", "Tidak mau", "Boleh juga"],
+          correct: 1
+        },
+        {
+          question: "Apa bahasa Jepang dari 'Saya jago memasak'?",
+          options: ["りょうりがじょうずです", "りょうりがへたです", "りょうりがすきです", "りょうりがあります"],
+          correct: 0
+        },
+        {
+          question: "スポーツがきらいです Artinya?",
+          options: ["Tidak suka olahraga", "Suka olahraga", "Bisa olahraga", "Jago olahraga"],
+          correct: 0
+        },
+        {
+          question: "Apa arti 'Saya ada janji hari ini'?",
+          options: ["きょうやくそくがありません", "きょうやくそくがすきです", "きょうやくそくがあります", "きょうやくそくができます"],
+          correct: 2
+        },
+        {
+          question: "のみものがすきです Artinya?",
+          options: ["Suka minuman", "Tidak suka minuman", "Bisa minum", "Tidak bisa minum"],
+          correct: 0
+        },
+        {
+          question: "えがへたです Artinya?",
+          options: ["Jago menggambar", "Tidak pandai menggambar", "Tidak suka menggambar", "Tidak boleh menggambar"],
+          correct: 1
+        }
+      ],
 
-  state.cur=0; state.score=0; state.right=0; state.wrong=0;
+      bab10: [
+        {
+          question: "Apa bahasa Jepang dari 'ada (benda mati)'?",
+          options: ["います", "あります", "いちばん", "なか"],
+          correct: 1
+        },
+        {
+          question: "Apa arti います？",
+          options: ["Ada (makhluk hidup)", "Tidak ada", "Di dalam", "Paling"],
+          correct: 0
+        },
+        {
+          question: "Apa arti いろいろ？",
+          options: ["Di luar", "Berbagai macam", "Paling", "Dekat"],
+          correct: 1
+        },
+        {
+          question: "いちばん berarti?",
+          options: ["Paling", "Di depan", "Di bawah", "Di belakang"],
+          correct: 0
+        },
+        {
+          question: "うえ berarti?",
+          options: ["Atas", "Bawah", "Belakang", "Depan"],
+          correct: 0
+        },
+        {
+          question: "した berarti?",
+          options: ["Atas", "Bawah", "Samping", "Dalam"],
+          correct: 1
+        },
+        {
+          question: "まえ berarti?",
+          options: ["Belakang", "Depan", "Tengah", "Dekat"],
+          correct: 1
+        },
+        {
+          question: "うしろ berarti?",
+          options: ["Samping", "Depan", "Belakang", "Atas"],
+          correct: 2
+        },
+        {
+          question: "なか berarti?",
+          options: ["Luar", "Dalam", "Dekat", "Antara"],
+          correct: 1
+        },
+        {
+          question: "そと berarti?",
+          options: ["Luar", "Dalam", "Atas", "Samping"],
+          correct: 0
+        },
+        {
+          question: "となり berarti?",
+          options: ["Antara", "Samping", "Belakang", "Dekat"],
+          correct: 1
+        },
+        {
+          question: "ちかく berarti?",
+          options: ["Paling", "Dekat", "Jauh", "Antara"],
+          correct: 1
+        },
+        {
+          question: "あいだ berarti?",
+          options: ["Di antara", "Di atas", "Di bawah", "Samping"],
+          correct: 0
+        },
+        {
+          question: "Apa bahasa Jepang dari 'kucing'?",
+          options: ["いぬ", "ねこ", "とり", "うし"],
+          correct: 1
+        },
+        {
+          question: "いぬ berarti?",
+          options: ["Kucing", "Anjing", "Ayam", "Burung"],
+          correct: 1
+        },
+        {
+          question: "はこ berarti?",
+          options: ["Meja", "Rak", "Kotak", "Kursi"],
+          correct: 2
+        },
+        {
+          question: "Apa arti たな？",
+          options: ["Tempat tidur", "Rak", "Jendela", "Pintu"],
+          correct: 1
+        },
+        {
+          question: "ベッド berarti?",
+          options: ["Kursi", "Tempat tidur", "Rak", "Jalan"],
+          correct: 1
+        },
+        {
+          question: "テーブル berarti?",
+          options: ["Meja", "Kursi", "Kasur", "Pintu"],
+          correct: 0
+        },
+        {
+          question: "Apa bahasa Jepang dari 'berbagai tempat'?",
+          options: ["いろいろなところ", "たくさんのいえ", "いろいろなひと", "たくさんのまち"],
+          correct: 0
+        },
+        {
+          question: "コンビニ berarti?",
+          options: ["Toko kelontong 24 jam", "Mall", "Pasar malam", "Restoran"],
+          correct: 0
+        },
+        {
+          question: "ATM berarti?",
+          options: ["Anjing besar", "Mesin ATM", "Gedung tinggi", "Parkiran"],
+          correct: 1
+        },
+        {
+          question: "バスてい berarti?",
+          options: ["Halte bus", "Terminal", "Stasiun kereta", "Jalan raya"],
+          correct: 0
+        },
+        {
+          question: "Apa bahasa Jepang dari 'di depan rumah'?",
+          options: ["いえのした", "いえのまえ", "いえのうえ", "いえのうしろ"],
+          correct: 1
+        },
+        {
+          question: "つくえのうえに 本が あります。 Artinya?",
+          options: ["Ada buku di atas meja", "Ada buku di bawah meja", "Tidak ada buku", "Meja ada di buku"],
+          correct: 0
+        },
+        {
+          question: "いぬは いえのそとに います。 Artinya?",
+          options: ["Anjing ada di luar rumah", "Anjing ada di dalam rumah", "Anjing ada di bawah rumah", "Anjing tidak ada"],
+          correct: 0
+        },
+        {
+          question: "Apa bahasa Jepang dari 'di antara sekolah dan rumah'?",
+          options: ["がっこうといえのそと", "がっこうといえのうえ", "がっこうといえのあいだ", "がっこうといえのした"],
+          correct: 2
+        },
+        {
+          question: "ぎんこうのとなりに コンビニがあります。 Artinya?",
+          options: ["Ada konbini di dekat bank", "Konbini ada di depan bank", "Konbini ada di samping bank", "Konbini jauh dari bank"],
+          correct: 2
+        },
+        {
+          question: "Apa arti ほんは はこのなかに あります？",
+          options: ["Buku ada di atas kotak", "Buku ada di luar kotak", "Buku ada di dalam kotak", "Buku ada di samping kotak"],
+          correct: 2
+        },
+        {
+          question: "Apa bahasa Jepang dari 'di samping stasiun'?",
+          options: ["えきのうえ", "えきのそと", "えきのした", "えきのとなり"],
+          correct: 3
+        },
+        {
+          question: "テーブルのしたに ねこがいます。 Artinya?",
+          options: ["Kucing ada di bawah meja", "Kucing ada di atas meja", "Kucing ada di dalam meja", "Tidak ada kucing"],
+          correct: 0
+        },
+        {
+          question: "Apa arti いろいろなひと？",
+          options: ["Tempat-tempat berbeda", "Banyak kota", "Berbagai macam orang", "Orang terkenal"],
+          correct: 2
+        },
+        {
+          question: "やまださんは へやのなかに います。 Artinya?",
+          options: ["Yamada ada di dalam kamar", "Yamada ada di luar kamar", "Yamada ada di bawah kamar", "Yamada tidak ada"],
+          correct: 0
+        },
+        {
+          question: "Apa bahasa Jepang dari 'di belakang sekolah'?",
+          options: ["がっこうのまえ", "がっこうのうしろ", "がっこうのなか", "がっこうのそと"],
+          correct: 1
+        },
+        {
+          question: "とけいは へやのまえに あります。 Artinya?",
+          options: ["Jam ada di depan kamar", "Jam ada di belakang kamar", "Jam ada di bawah kamar", "Jam ada di luar kamar"],
+          correct: 0
+        },
+        {
+          question: "Apa arti ちかく？",
+          options: ["Jauh", "Dekat", "Samping", "Antara"],
+          correct: 1
+        },
+        {
+          question: "スーパーは うちのちかくに あります。 Artinya?",
+          options: ["Supermarket dekat rumah", "Supermarket mahal", "Supermarket di atas rumah", "Supermarket di dalam rumah"],
+          correct: 0
+        },
+        {
+          question: "Apa bahasa Jepang dari 'di luar gedung'?",
+          options: ["たてもののそと", "たてもののなか", "たてもののうえ", "たてもののした"],
+          correct: 0
+        },
+        {
+          question: "テーブルのうえに パンが あります。 Artinya?",
+          options: ["Ada roti di bawah meja", "Ada roti di luar meja", "Ada roti di atas meja", "Ada roti di samping meja"],
+          correct: 2
+        },
+        {
+          question: "Apa arti いぬとねこのあいだ？",
+          options: ["Di belakang anjing", "Di samping kucing", "Di antara anjing dan kucing", "Di depan kucing"],
+          correct: 2
+        },
+        {
+          question: "ぎんこうは えきのちかくに あります。 Artinya?",
+          options: ["Bank dekat stasiun", "Bank jauh dari stasiun", "Bank di atas stasiun", "Bank tidak ada"],
+          correct: 0
+        },
+        {
+          question: "Apa bahasa Jepang dari 'ada kucing di samping kotak'?",
+          options: ["はこのなかにねこがいます", "はこのうしろにねこがいます", "はこのそとにねこがいます", "はこのとなりにねこがいます"],
+          correct: 3
+        },
+        {
+          question: "くるまは うちのまえに あります。 Artinya?",
+          options: ["Mobil ada di depan rumah", "Mobil ada di belakang rumah", "Mobil ada di atas rumah", "Mobil hilang"],
+          correct: 0
+        },
+        {
+          question: "Apa arti がくせいが へやに います？",
+          options: ["Ada murid di dalam kamar", "Tidak ada murid", "Murid di luar kamar", "Murid di bawah kamar"],
+          correct: 0
+        },
+        {
+          question: "へやのうしろに でんきがあります。 Artinya?",
+          options: ["Ada lampu di belakang kamar", "Ada lampu di depan kamar", "Lampu kecil", "Kamar gelap"],
+          correct: 0
+        },
+        {
+          question: "Apa bahasa Jepang dari 'ada meja di dalam kamar'?",
+          options: ["へやのそとにテーブルがあります", "へやのしたにテーブルがあります", "へやのなかにテーブルがあります", "へやのうえにテーブルがあります"],
+          correct: 2
+        }
+      ]
 
-  state.pool = QUESTIONS.slice();
-  if(config.shuffle) shuffle(state.pool);
-  state.pool = state.pool.slice(0,config.total);
+    };
 
-  qTotal.textContent = state.pool.length;
-  scoreEl.textContent = 0;
+    // App state
+    let currentQuiz = {
+      chapter: '',
+      questions: [],
+      currentQuestion: 0,
+      score: 0,
+      selectedCount: 10,
+      timePerQuestion: 30,
+      timeRemaining: 30,
+      timer: null,
+      startTime: null,
+      answers: []
+    };
 
-  startScreen.classList.add("hidden");
-  resultScreen.classList.add("hidden");
-  gameScreen.classList.remove("hidden");
+    // Configuration
+    const defaultConfig = {
+      app_title: "Quiz Kotoba",
+      welcome_text: "Selamat datang di Quiz Kotoba",
+      start_button_text: "Mulai Quiz"
+    };
 
-  renderQ();
-}
+    // Initialize app
+    document.addEventListener('DOMContentLoaded', function () {
+      // Show loading screen
+      setTimeout(() => {
+        document.getElementById('loadingScreen').classList.add('hidden');
+        document.getElementById('mainContent').classList.remove('hidden');
+      }, 2000);
 
-// RENDER QUESTION
-function renderQ(){
-  clearInterval(state.timerId);
+      setupEventListeners();
+      updateUI();
+    });
 
-  const q = state.pool[state.cur];
-  if(!q){ endGame(); return; }
+    function setupEventListeners() {
+      // Question count selection
+      document.querySelectorAll('.question-count-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+          document.querySelectorAll('.question-count-btn').forEach(b => {
+            b.classList.remove('bg-blue-600', 'ring-2', 'ring-white');
+            b.classList.add('bg-white/20');
+          });
 
-  qIdx.textContent = state.cur+1;
-  questionText.textContent = q.question;
-  feedback.textContent="";
+          this.classList.remove('bg-white/20');
+          this.classList.add('bg-blue-600', 'ring-2', 'ring-white');
 
-  let opts = q.options.slice();
-  if(config.shuffle) shuffle(opts);
+          currentQuiz.selectedCount = parseInt(this.dataset.count);
+          checkStartButton();
+        });
+      });
 
-  optionsWrap.innerHTML="";
-  opts.forEach(o=>{
-    let b=document.createElement("button");
-    b.className="option";
-    b.textContent=o;
-    b.onclick=()=>selectOpt(b,o,q.answer);
-    optionsWrap.appendChild(b);
-  });
+      // Chapter selection
+      document.getElementById('chapterSelect').addEventListener('change', function () {
+        currentQuiz.chapter = this.value;
+        checkStartButton();
+      });
 
-  progressBar.style.width = (state.cur/state.pool.length*100)+"%";
-  nextBtn.style.display="none";
+      // Start quiz button
+      document.getElementById('startQuizBtn').addEventListener('click', startQuiz);
 
-  if(config.timerOn && config.timerSec>0){
-    state.remainingTime=config.timerSec;
-    timerEl.textContent=state.remainingTime+"s";
-    state.timerId=setInterval(()=>{
-      state.remainingTime--;
-      timerEl.textContent=state.remainingTime+"s";
-      if(state.remainingTime<=0){
-        clearInterval(state.timerId);
-        timeUp();
+      // Next button
+      document.getElementById('nextBtn').addEventListener('click', nextQuestion);
+
+      // Restart button
+      document.getElementById('restartBtn').addEventListener('click', restartQuiz);
+    }
+
+    function checkStartButton() {
+      const startBtn = document.getElementById('startQuizBtn');
+      if (currentQuiz.chapter && currentQuiz.selectedCount) {
+        startBtn.disabled = false;
+        startBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+      } else {
+        startBtn.disabled = true;
+        startBtn.classList.add('opacity-50', 'cursor-not-allowed');
       }
-    },1000);
-  } else timerEl.textContent="-";
-}
+    }
 
-function selectOpt(btn,selected,correct){
-  Array.from(optionsWrap.children).forEach(b=>b.disabled=true);
-  clearInterval(state.timerId);
+    function startQuiz() {
+      // Generate questions for selected chapter
+      const allQuestions = questionsDB[currentQuiz.chapter] || [];
 
-  if(selected===correct){
-    btn.classList.add("correct");
-    state.score+=10; state.right++;
-    feedback.textContent="Benar! +10";
-  } else {
-    btn.classList.add("wrong");
-    Array.from(optionsWrap.children).forEach(b=>{ if(b.textContent===correct) b.classList.add("correct"); });
-    state.wrong++;
-    feedback.textContent="Salah! Jawaban: "+correct;
-  }
+      // Generate additional questions if needed
+      const questions = generateQuestions(allQuestions, currentQuiz.selectedCount);
 
-  scoreEl.textContent=state.score;
-  nextBtn.style.display="inline-block";
-}
+      currentQuiz.questions = questions;
+      currentQuiz.currentQuestion = 0;
+      currentQuiz.score = 0;
+      currentQuiz.startTime = Date.now();
+      currentQuiz.answers = [];
 
-function timeUp(){
-  Array.from(optionsWrap.children).forEach(b=>{
-    b.disabled=true;
-    if(b.textContent===state.pool[state.cur].answer) b.classList.add("correct");
-  });
-  feedback.textContent="Waktu habis! Jawaban: "+state.pool[state.cur].answer;
-  state.wrong++;
-  nextBtn.style.display="inline-block";
-}
+      // Show quiz screen
+      document.getElementById('welcomeScreen').classList.add('hidden');
+      document.getElementById('quizScreen').classList.remove('hidden');
 
-// NEXT
-nextBtn.onclick=()=>{
-  state.cur++;
-  if(state.cur>=state.pool.length) endGame();
-  else renderQ();
-};
+      showQuestion();
+    }
 
-endBtn.onclick=()=>{
-  if(confirm("Akhiri kuis?")) endGame();
-};
+    function generateQuestions(baseQuestions, count) {
+      // Create a unique seed based on current timestamp and random number
+      // This ensures different devices get different question orders
+      const uniqueSeed = Date.now() + Math.random() * 1000000;
 
-// END GAME
-function endGame(){
-  clearInterval(state.timerId);
-  gameScreen.classList.add("hidden");
-  resultScreen.classList.remove("hidden");
+      // Create expanded question pool with variations
+      const expandedQuestions = [];
 
-  finalScore.textContent=state.score;
-  summary.textContent="Benar: "+state.right+" | Salah: "+state.wrong;
+      // Add original questions
+      baseQuestions.forEach(question => {
+        expandedQuestions.push({ ...question });
+      });
 
-  saveBoard(state.score);
-  loadBoard();
-}
+      // Generate additional variations if needed
+      while (expandedQuestions.length < count * 2) {
+        const randomBase = baseQuestions[Math.floor(Math.random() * baseQuestions.length)];
+        const variation = createQuestionVariation(randomBase);
+        expandedQuestions.push(variation);
+      }
 
-// LEADERBOARD
-function saveBoard(s){
-  let x=JSON.parse(localStorage.getItem("kotoba_b1")||"[]");
-  x.push({score:s,time:new Date().toLocaleString()});
-  x.sort((a,b)=>b.score-a.score);
-  x=x.slice(0,10);
-  localStorage.setItem("kotoba_b1",JSON.stringify(x));
-}
-function loadBoard(){
-  let x=JSON.parse(localStorage.getItem("kotoba_b1")||"[]");
-  leaderList.innerHTML="";
-  if(x.length===0){ leaderList.innerHTML="<li>Belum ada skor</li>"; return; }
-  x.forEach(r=>{
-    let li=document.createElement("li");
-    li.textContent=r.score+" pts — "+r.time;
-    leaderList.appendChild(li);
-  });
-}
-loadBoard();
+      // Shuffle with unique seed to ensure different order on each device
+      const shuffledQuestions = shuffleArrayWithSeed(expandedQuestions, uniqueSeed);
 
-retryBtn.onclick=()=>startGame();
-toStartBtn.onclick=()=>{
-  resultScreen.classList.add("hidden");
-  gameScreen.classList.add("hidden");
-  startScreen.classList.remove("hidden");
-};
+      // Return requested count
+      return shuffledQuestions.slice(0, count);
+    }
 
-// FLASHCARD
-const flashCard = document.getElementById('flashCard');
-const flashFront = document.getElementById('flashFront');
-const flashBack = document.getElementById('flashBack');
-const flashNext = document.getElementById('flashNext');
-const flashExit = document.getElementById('flashExit');
-let flashPool=[], flashIndex=0;
+    function createQuestionVariation(baseQuestion) {
+      // Create variations by shuffling options while maintaining correct answer
+      const shuffledOptions = [...baseQuestion.options];
+      const correctAnswer = baseQuestion.options[baseQuestion.correct];
 
-function startFlash(){
-  flashPool = QUESTIONS.slice();
-  shuffle(flashPool);
-  flashIndex=0;
+      // Shuffle options
+      for (let i = shuffledOptions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffledOptions[i], shuffledOptions[j]] = [shuffledOptions[j], shuffledOptions[i]];
+      }
 
-  startScreen.classList.add("hidden");
-  gameScreen.classList.add("hidden");
-  resultScreen.classList.add("hidden");
-  flashcardScreen.classList.remove("hidden");
+      // Find new position of correct answer
+      const newCorrectIndex = shuffledOptions.indexOf(correctAnswer);
 
-  loadFlash();
-}
+      return {
+        question: baseQuestion.question,
+        options: shuffledOptions,
+        correct: newCorrectIndex
+      };
+    }
 
-function loadFlash(){
-  const q=flashPool[flashIndex % flashPool.length];
-  flashFront.textContent=q.question;
-  flashBack.textContent=q.answer;
-  flashBack.style.display="none";
-}
+    function shuffleArrayWithSeed(array, seed) {
+      const shuffled = [...array];
+      let currentSeed = seed;
 
-flashCard.onclick=()=>{
-  flashBack.style.display = flashBack.style.display==="none" ? "block":"none";
-};
-flashNext.onclick=()=>{
-  flashIndex++;
-  loadFlash();
-};
-flashExit.onclick=()=>{
-  flashcardScreen.classList.add("hidden");
-  startScreen.classList.remove("hidden");
-};
+      // Simple seeded random number generator
+      function seededRandom() {
+        currentSeed = (currentSeed * 9301 + 49297) % 233280;
+        return currentSeed / 233280;
+      }
 
-flashBtn.onclick=()=>startFlash();
-startBtn.onclick=()=>startGame();
-</script>
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(seededRandom() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
 
+      return shuffled;
+    }
+
+    function shuffleArray(array) {
+      const shuffled = [...array];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled;
+    }
+
+    function shuffleOptionsForDisplay(question) {
+      // Create a copy of options and shuffle them
+      const options = [...question.options];
+      const correctAnswer = question.options[question.correct];
+
+      // Shuffle options with current timestamp for uniqueness
+      const shuffleSeed = Date.now() + Math.random() * 1000;
+      let currentSeed = shuffleSeed;
+
+      function seededRandom() {
+        currentSeed = (currentSeed * 9301 + 49297) % 233280;
+        return currentSeed / 233280;
+      }
+
+      for (let i = options.length - 1; i > 0; i--) {
+        const j = Math.floor(seededRandom() * (i + 1));
+        [options[i], options[j]] = [options[j], options[i]];
+      }
+
+      // Find new correct index
+      const correctIndex = options.indexOf(correctAnswer);
+
+      return {
+        options: options,
+        correctIndex: correctIndex
+      };
+    }
+
+    function showQuestion() {
+      const question = currentQuiz.questions[currentQuiz.currentQuestion];
+
+      // Update question info
+      document.getElementById('questionNumber').textContent = `Soal ${currentQuiz.currentQuestion + 1}`;
+      document.getElementById('questionText').textContent = question.question;
+
+      // Update progress
+      const progress = ((currentQuiz.currentQuestion + 1) / currentQuiz.questions.length) * 100;
+      document.getElementById('progressBar').style.width = `${progress}%`;
+      document.getElementById('progressText').textContent = `${currentQuiz.currentQuestion + 1} / ${currentQuiz.questions.length}`;
+
+      // Create answer options
+      const optionsContainer = document.getElementById('answerOptions');
+      optionsContainer.innerHTML = '';
+
+      // Shuffle options for each question display to make it more random
+      const shuffledOptionsData = shuffleOptionsForDisplay(question);
+
+      shuffledOptionsData.options.forEach((option, index) => {
+        const button = document.createElement('button');
+        button.className = 'option-button w-full p-4 sm:p-5 lg:p-6 text-left bg-white/20 text-black text-base sm:text-lg lg:text-xl rounded-lg border border-white/30 hover:bg-white/35 transition-colors';
+        button.innerHTML = `
+                    <span class="font-semibold">${String.fromCharCode(65 + index)}.</span>
+                    <span class="ml-2">${option}</span>
+                `;
+        button.addEventListener('click', () => selectAnswer(index, button, shuffledOptionsData.correctIndex));
+        optionsContainer.appendChild(button);
+      });
+
+      // Reset timer
+      currentQuiz.timeRemaining = currentQuiz.timePerQuestion;
+      startTimer();
+
+      // Hide next button
+      document.getElementById('nextBtn').classList.add('hidden');
+    }
+
+    function selectAnswer(selectedIndex, buttonElement, correctIndex) {
+      // Stop timer
+      clearInterval(currentQuiz.timer);
+
+      // Disable all buttons
+      document.querySelectorAll('.option-button').forEach(btn => {
+        btn.disabled = true;
+        btn.classList.add('cursor-not-allowed');
+      });
+
+      const question = currentQuiz.questions[currentQuiz.currentQuestion];
+      const isCorrect = selectedIndex === correctIndex;
+
+      // Store answer
+      currentQuiz.answers.push({
+        question: question.question,
+        selected: selectedIndex,
+        correct: correctIndex,
+        isCorrect: isCorrect
+      });
+
+      // Show correct/wrong styling
+      if (isCorrect) {
+        buttonElement.classList.add('correct-answer');
+        currentQuiz.score++;
+      } else {
+        buttonElement.classList.add('wrong-answer');
+        // Highlight correct answer
+        document.querySelectorAll('.option-button')[correctIndex].classList.add('correct-answer');
+      }
+
+      // Show next button immediately
+      document.getElementById('nextBtn').classList.remove('hidden');
+    }
+
+    function startTimer() {
+      const timerElement = document.getElementById('timeRemaining');
+
+      currentQuiz.timer = setInterval(() => {
+        currentQuiz.timeRemaining--;
+        timerElement.textContent = `⏱️ ${currentQuiz.timeRemaining}s`;
+
+        if (currentQuiz.timeRemaining <= 0) {
+          clearInterval(currentQuiz.timer);
+          // Auto select random answer if time runs out
+          const randomIndex = Math.floor(Math.random() * 4);
+          const buttons = document.querySelectorAll('.option-button');
+          if (buttons[randomIndex] && !buttons[randomIndex].disabled) {
+            // Get the current question's shuffled options data
+            const question = currentQuiz.questions[currentQuiz.currentQuestion];
+            const shuffledOptionsData = shuffleOptionsForDisplay(question);
+            selectAnswer(randomIndex, buttons[randomIndex], shuffledOptionsData.correctIndex);
+          }
+        }
+      }, 1000);
+    }
+
+    function nextQuestion() {
+      currentQuiz.currentQuestion++;
+
+      if (currentQuiz.currentQuestion >= currentQuiz.questions.length) {
+        showResults();
+      } else {
+        showQuestion();
+      }
+    }
+
+    function showResults() {
+      const totalTime = Math.floor((Date.now() - currentQuiz.startTime) / 1000);
+      const percentage = Math.round((currentQuiz.score / currentQuiz.questions.length) * 100);
+
+      // Hide quiz screen, show results
+      document.getElementById('quizScreen').classList.add('hidden');
+      document.getElementById('resultsScreen').classList.remove('hidden');
+
+      // Update results
+      document.getElementById('finalScore').textContent = `${currentQuiz.score}/${currentQuiz.questions.length}`;
+      document.getElementById('scorePercentage').textContent = `${percentage}%`;
+      document.getElementById('correctCount').textContent = currentQuiz.score;
+      document.getElementById('wrongCount').textContent = currentQuiz.questions.length - currentQuiz.score;
+      document.getElementById('totalTime').textContent = `${totalTime}s`;
+
+      // Score message
+      let message = '';
+      if (percentage >= 90) message = 'Luar biasa! Anda menguasai materi dengan sangat baik!';
+      else if (percentage >= 80) message = 'Bagus sekali! Pemahaman Anda sudah sangat baik!';
+      else if (percentage >= 70) message = 'Baik! Terus tingkatkan pemahaman Anda!';
+      else if (percentage >= 60) message = 'Cukup baik, masih ada ruang untuk perbaikan!';
+      else message = 'Terus berlatih untuk hasil yang lebih baik!';
+
+      document.getElementById('scoreMessage').textContent = message;
+    }
+
+    function restartQuiz() {
+      // Reset quiz state
+      currentQuiz = {
+        chapter: '',
+        questions: [],
+        currentQuestion: 0,
+        score: 0,
+        selectedCount: 10,
+        timePerQuestion: 30,
+        timeRemaining: 30,
+        timer: null,
+        startTime: null,
+        answers: []
+      };
+
+      // Reset UI
+      document.getElementById('resultsScreen').classList.add('hidden');
+      document.getElementById('welcomeScreen').classList.remove('hidden');
+      document.getElementById('chapterSelect').value = '';
+      document.querySelectorAll('.question-count-btn').forEach(btn => {
+        btn.classList.remove('bg-blue-600', 'ring-2', 'ring-white');
+        btn.classList.add('bg-white/20');
+      });
+
+      checkStartButton();
+    }
+
+    function updateUI() {
+      const config = window.elementSdk?.config || defaultConfig;
+      document.getElementById('appTitle').textContent = config.app_title || defaultConfig.app_title;
+      document.getElementById('welcomeText').textContent = config.welcome_text || defaultConfig.welcome_text;
+      document.getElementById('startButtonText').textContent = config.start_button_text || defaultConfig.start_button_text;
+    }
+
+    // Element SDK Integration
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig: defaultConfig,
+        onConfigChange: async (config) => {
+          updateUI();
+        },
+        mapToCapabilities: (config) => ({
+          recolorables: [],
+          borderables: [],
+          fontEditable: undefined,
+          fontSizeable: undefined
+        }),
+        mapToEditPanelValues: (config) => new Map([
+          ["app_title", config.app_title || defaultConfig.app_title],
+          ["welcome_text", config.welcome_text || defaultConfig.welcome_text],
+          ["start_button_text", config.start_button_text || defaultConfig.start_button_text]
+        ])
+      });
+    }
+  </script>
+  <script>(function () { function c() { var b = a.contentDocument || a.contentWindow.document; if (b) { var d = b.createElement('script'); d.innerHTML = "window.__CF$cv$params={r:'99e4c472e4b1577a',t:'MTc2MzEwNTA0Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);"; b.getElementsByTagName('head')[0].appendChild(d) } } if (document.body) { var a = document.createElement('iframe'); a.height = 1; a.width = 1; a.style.position = 'absolute'; a.style.top = 0; a.style.left = 0; a.style.border = 'none'; a.style.visibility = 'hidden'; document.body.appendChild(a); if ('loading' !== document.readyState) c(); else if (window.addEventListener) document.addEventListener('DOMContentLoaded', c); else { var e = document.onreadystatechange || function () { }; document.onreadystatechange = function (b) { e(b); 'loading' !== document.readyState && (document.onreadystatechange = e, c()) } } } })();</script>
 </body>
+
 </html>

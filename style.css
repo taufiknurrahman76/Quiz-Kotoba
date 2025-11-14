@@ -119,7 +119,7 @@ html, body {
   text-decoration-line: none;
 }
 
-.button-game {
+.game-button {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -127,6 +127,8 @@ html, body {
   width: 100%;
   max-width: 600px;
   text-decoration: none;
+  padding-bottom: 30px;
+  margin-top: 30px;   /* INI YANG MENURUNKAN */
 }
 
 .game-slot {
@@ -140,6 +142,7 @@ html, body {
   transition: all 0.2s ease;
   flex: 1 1 100px; /* tombol menyesuaikan lebar layar */
   max-width: 120px;
+  margin-top: 10px;
   text-decoration: none;
 }
 
